@@ -120,6 +120,10 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
 
     // The current key where this pointer is.
     private Key mCurrentKey = null;
+
+    // The first touched key
+    private Key mTouchDownKey = null;
+
     // The position where the current key was recognized for the first time.
     private int mKeyX;
     private int mKeyY;
@@ -251,6 +255,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
             return false;
         }
         final boolean ignoreModifierKey = mIsInDraggingFinger && (key.isModifier() || key.isSwitch());
+
         if (DEBUG_LISTENER) {
             Log.d(TAG, String.format("[%d] onPress    : %s%s%s%s", mPointerId,
                     (key == null ? "none" : Constants.printableCode(key.getCode())),
@@ -276,6 +281,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
     private void callListenerOnCodeInput(final Key key, final int primaryCode, final int x,
             final int y, final long eventTime, final boolean isKeyRepeat) {
         final boolean ignoreModifierKey = mIsInDraggingFinger && (key.isModifier() || key.isSwitch());
+
         final boolean altersCode = key.altCodeWhileTyping() && sTimerProxy.isTypingState();
         final int code = altersCode ? key.getAltCode() : primaryCode;
         if (DEBUG_LISTENER) {
@@ -686,6 +692,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         mKeyboardLayoutHasBeenChanged = false;
         mIsTrackingForActionDisabled = false;
         resetKeySelectionByDraggingFinger();
+        mTouchDownKey = key;
         if (key != null && !key.isSwitch()) {
             // This onPress call may have changed keyboard layout. Those cases are detected at
             // {@link #setKeyboard}. In those cases, we should update key according to the new
@@ -1001,7 +1008,12 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
                 && (currentKey.getCode() == currentRepeatingKeyCode) && !isInDraggingFinger) {
             return;
         }
-        detectAndSendKey(currentKey, mKeyX, mKeyY, eventTime);
+
+        //if switch and slide, we ignore
+        if (!(isInSlidingKeyInput && mTouchDownKey.isSwitch())) {
+            detectAndSendKey(currentKey, mKeyX, mKeyY, eventTime);
+        }
+        mTouchDownKey = null;
         if (isInSlidingKeyInput) {
             callListenerOnFinishSlidingInput();
         }
