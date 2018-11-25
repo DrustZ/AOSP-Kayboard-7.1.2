@@ -37,6 +37,7 @@ import android.text.style.CharacterStyle;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -257,26 +258,27 @@ final class SuggestionStripLayoutHelper {
     static int getPositionInSuggestionStrip(final int indexInSuggestedWords,
             final boolean willAutoCorrect, final boolean omitTypedWord,
             final int centerPositionInStrip, final int typedWordPositionWhenAutoCorrect) {
-        if (omitTypedWord) {
-            if (indexInSuggestedWords == SuggestedWords.INDEX_OF_TYPED_WORD) {
-                // Ignore.
-                return -1;
-            }
-            if (indexInSuggestedWords == SuggestedWords.INDEX_OF_AUTO_CORRECTION) {
-                // Center in the suggestion strip.
-                return centerPositionInStrip;
-            }
-            // If neither of those, the order in the suggestion strip is left of the center first
-            // then right of the center, to both edges of the suggestion strip.
-            // For example, center-1, center+1, center-2, center+2, and so on.
-            final int n = indexInSuggestedWords;
-            final int offsetFromCenter = (n % 2) == 0 ? -(n / 2) : (n / 2);
-            final int positionInSuggestionStrip = centerPositionInStrip + offsetFromCenter;
-            return positionInSuggestionStrip;
-        }
+
+//        if (omitTypedWord) {
+//            if (indexInSuggestedWords == SuggestedWords.INDEX_OF_TYPED_WORD) {
+//                // Ignore.
+//                return -1;
+//            }
+//            if (indexInSuggestedWords == SuggestedWords.INDEX_OF_AUTO_CORRECTION) {
+//                // Center in the suggestion strip.
+//                return centerPositionInStrip;
+//            }
+//            // If neither of those, the order in the suggestion strip is left of the center first
+//            // then right of the center, to both edges of the suggestion strip.
+//            // For example, center-1, center+1, center-2, center+2, and so on.
+//            final int n = indexInSuggestedWords;
+//            final int offsetFromCenter = (n % 2) == 0 ? -(n / 2) : (n / 2);
+//            final int positionInSuggestionStrip = centerPositionInStrip + offsetFromCenter;
+//            return positionInSuggestionStrip;
+//        }
         final int indexToDisplayMostImportantSuggestion;
         final int indexToDisplaySecondMostImportantSuggestion;
-        if (willAutoCorrect) {
+        if (omitTypedWord) {
             indexToDisplayMostImportantSuggestion = SuggestedWords.INDEX_OF_AUTO_CORRECTION;
             indexToDisplaySecondMostImportantSuggestion = SuggestedWords.INDEX_OF_TYPED_WORD;
         } else {
