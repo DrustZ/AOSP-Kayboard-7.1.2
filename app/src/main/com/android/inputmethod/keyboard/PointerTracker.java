@@ -930,7 +930,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
                 dragFingerOutFromOldKey(oldKey, x, y);
             }
         }
-        if (mIsInSlidingKeyInput) {
+        if (mIsInSlidingKeyInput && !mTouchDownKey.isSwitch()) {
             sDrawingProxy.showSlidingKeyInputPreview(this);
         }
     }
@@ -1004,6 +1004,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         if (mIsTrackingForActionDisabled) {
             return;
         }
+
         if (currentKey != null && currentKey.isRepeatable()
                 && (currentKey.getCode() == currentRepeatingKeyCode) && !isInDraggingFinger) {
             return;
