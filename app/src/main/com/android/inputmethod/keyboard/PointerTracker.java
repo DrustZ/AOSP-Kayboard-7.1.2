@@ -693,7 +693,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         mIsTrackingForActionDisabled = false;
         resetKeySelectionByDraggingFinger();
         mTouchDownKey = key;
-        if (key != null && !key.isSwitch()) {
+        if (key != null) {
             // This onPress call may have changed keyboard layout. Those cases are detected at
             // {@link #setKeyboard}. In those cases, we should update key according to the new
             // keyboard layout.
@@ -799,6 +799,9 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
             return;
         }
         startLongPressTimer(key);
+        if (mTouchDownKey.isSwitch()) {
+            return;
+        }
         setPressedKeyGraphics(key, eventTime);
     }
 
@@ -930,7 +933,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
                 dragFingerOutFromOldKey(oldKey, x, y);
             }
         }
-        if (mIsInSlidingKeyInput && !mTouchDownKey.isSwitch()) {
+        if (mIsInSlidingKeyInput) {
             sDrawingProxy.showSlidingKeyInputPreview(this);
         }
     }

@@ -1239,7 +1239,8 @@ public final class InputLogic {
      * Handle a press on the language switch key (the "globe key")
      */
     private void handleLanguageSwitchKey() {
-        mLatinIME.switchToNextSubtype();
+        //dont switch, treat as a correction
+//        mLatinIME.switchToNextSubtype();
     }
 
     /**
