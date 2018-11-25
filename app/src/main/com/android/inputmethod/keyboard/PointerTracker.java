@@ -512,7 +512,8 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         if (DEBUG_LISTENER) {
             Log.d(TAG, String.format("[%d] onStartBatchInput", mPointerId));
         }
-        sListener.onStartBatchInput();
+        //cancel gesture typing being processed
+//        sListener.onStartBatchInput();
         dismissAllMoreKeysPanels();
         sTimerProxy.cancelLongPressTimersOf(this);
     }
@@ -537,7 +538,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
             Log.d(TAG, String.format("[%d] onUpdateBatchInput: batchPoints=%d", mPointerId,
                     aggregatedPointers.getPointerSize()));
         }
-        sListener.onUpdateBatchInput(aggregatedPointers);
+//        sListener.onUpdateBatchInput(aggregatedPointers);
     }
 
     // Implements {@link BatchInputArbiterListener}.
@@ -558,7 +559,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
             Log.d(TAG, String.format("[%d] onEndBatchInput   : batchPoints=%d",
                     mPointerId, aggregatedPointers.getPointerSize()));
         }
-        sListener.onEndBatchInput(aggregatedPointers);
+//        sListener.onEndBatchInput(aggregatedPointers);
     }
 
     private void cancelBatchInput() {
