@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -31,6 +32,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
@@ -56,7 +58,7 @@ import com.android.inputmethod.latin.utils.ImportantNoticeUtils;
 import java.util.ArrayList;
 
 public final class SuggestionStripView extends RelativeLayout implements OnClickListener,
-        OnLongClickListener {
+        OnLongClickListener, OnTouchListener {
     public interface Listener {
         public void showImportantNoticeContents();
         public void pickSuggestionManually(SuggestedWordInfo word);
@@ -149,6 +151,7 @@ public final class SuggestionStripView extends RelativeLayout implements OnClick
             word.setContentDescription(getResources().getString(R.string.spoken_empty_suggestion));
             word.setOnClickListener(this);
             word.setOnLongClickListener(this);
+            word.setOnTouchListener(this);
             mWordViews.add(word);
             final View divider = inflater.inflate(R.layout.suggestion_divider, null);
             mDividerViews.add(divider);
@@ -166,11 +169,11 @@ public final class SuggestionStripView extends RelativeLayout implements OnClick
                 .findViewById(R.id.more_suggestions_view);
         mMoreSuggestionsBuilder = new MoreSuggestions.Builder(context, mMoreSuggestionsView);
 
-        final Resources res = context.getResources();
-        mMoreSuggestionsModalTolerance = res.getDimensionPixelOffset(
-                R.dimen.config_more_suggestions_modal_tolerance);
-        mMoreSuggestionsSlidingDetector = new GestureDetector(
-                context, mMoreSuggestionsSlidingListener);
+//        final Resources res = context.getResources();
+//        mMoreSuggestionsModalTolerance = res.getDimensionPixelOffset(
+//                R.dimen.config_more_suggestions_modal_tolerance);
+//        mMoreSuggestionsSlidingDetector = new GestureDetector(
+//                context, mMoreSuggestionsSlidingListener);
 
         final TypedArray keyboardAttr = context.obtainStyledAttributes(attrs,
                 R.styleable.Keyboard, defStyle, R.style.SuggestionStripView);
@@ -294,9 +297,27 @@ public final class SuggestionStripView extends RelativeLayout implements OnClick
     public boolean onLongClick(final View view) {
         AudioAndHapticFeedbackManager.getInstance().performHapticAndAudioFeedback(
                 Constants.NOT_A_CODE, this);
-        return showMoreSuggestions();
+//        return showMoreSuggestions();
+        int point[] = new int[2];
+        view.getLocationOnScreen(point);
+        //middle x, upper y
+        point[0] = point[0] + view.getWidth()/2;
+        return showIndicator(((TextView)view).getText().toString(), point[0], point[1]);
     }
 
+    boolean showIndicator(String text, int x, int y) {
+        final Keyboard parentKeyboard = mMainKeyboardView.getKeyboard();
+        if (parentKeyboard == null) {
+            return false;
+        }
+        for (int i = 0; i < mStartIndexOfMoreSuggestions; i++) {
+            mWordViews.get(i).setPressed(false);
+        }
+        mMainKeyboardView.onShowIndicator(text, x, y);
+        return true;
+    }
+
+    /*
     boolean showMoreSuggestions() {
         final Keyboard parentKeyboard = mMainKeyboardView.getKeyboard();
         if (parentKeyboard == null) {
@@ -389,12 +410,6 @@ public final class SuggestionStripView extends RelativeLayout implements OnClick
     }
 
     @Override
-    public boolean dispatchPopulateAccessibilityEvent(final AccessibilityEvent event) {
-        // Don't populate accessibility event with suggested words and voice key.
-        return true;
-    }
-
-    @Override
     public boolean onTouchEvent(final MotionEvent me) {
         if (!mMoreSuggestionsView.isShowingInParent()) {
             // Ignore any touch event while more suggestions panel hasn't been shown.
@@ -439,6 +454,20 @@ public final class SuggestionStripView extends RelativeLayout implements OnClick
         }
         me.setAction(hoverAction);
         mMoreSuggestionsView.onHoverEvent(me);
+        return true;
+    }
+    */
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        v.onTouchEvent(event);
+        mMainKeyboardView.passTouchEvent(event);
+        return true;
+    }
+
+    @Override
+    public boolean dispatchPopulateAccessibilityEvent(final AccessibilityEvent event) {
+        // Don't populate accessibility event with suggested words and voice key.
         return true;
     }
 

@@ -649,6 +649,21 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
         return PointerTracker.isAnyInDraggingFinger();
     }
 
+    public void onShowIndicator(String text, int x, int y) {
+        locatePreviewPlacerView();
+        // Dismiss another {@link MoreKeysPanel} that may be being showed.
+        onDismissMoreKeysPanel();
+        // Dismiss all key previews that may be being showed.
+        PointerTracker.setReleasedKeyGraphicsToAllKeys();
+        // Dismiss sliding key input preview that may be being showed.
+        mSlidingKeyInputDrawingPreview.dismissSlidingKeyInputPreview();
+        mDrawingPreviewPlacerView.showIndicatorViewWithText(text, x, y);
+    }
+
+    public void passTouchEvent(MotionEvent e){
+        mDrawingPreviewPlacerView.onTouchEvent(e);
+    }
+
     @Override
     public void onShowMoreKeysPanel(final MoreKeysPanel panel) {
         locatePreviewPlacerView();
