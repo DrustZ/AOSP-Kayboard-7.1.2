@@ -18,6 +18,7 @@ package com.android.inputmethod.keyboard.internal;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -83,7 +84,7 @@ public final class DrawingPreviewPlacerView extends RelativeLayout {
         mIndicatorView.setY(y-height-150);
         mIndicatorView.setHeight(height+80);
         mIndicatorView.setWidth(width+20);
-
+        mIndicatorView.setBackgroundColor(Color.argb(100, 200, 200, 200));
         this.addView(mIndicatorView);
     }
 
