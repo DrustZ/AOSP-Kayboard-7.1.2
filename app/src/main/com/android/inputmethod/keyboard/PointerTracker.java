@@ -250,7 +250,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         if (sInGesture || mIsDetectingGesture || mIsTrackingForActionDisabled) {
             return false;
         }
-        final boolean ignoreModifierKey = mIsInDraggingFinger && key.isModifier();
+        final boolean ignoreModifierKey = mIsInDraggingFinger && (key.isModifier() || key.isSwitch());
         if (DEBUG_LISTENER) {
             Log.d(TAG, String.format("[%d] onPress    : %s%s%s%s", mPointerId,
                     (key == null ? "none" : Constants.printableCode(key.getCode())),
@@ -275,7 +275,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
     // primaryCode is different from {@link Key#mKeyCode}.
     private void callListenerOnCodeInput(final Key key, final int primaryCode, final int x,
             final int y, final long eventTime, final boolean isKeyRepeat) {
-        final boolean ignoreModifierKey = mIsInDraggingFinger && key.isModifier();
+        final boolean ignoreModifierKey = mIsInDraggingFinger && (key.isModifier() || key.isSwitch());
         final boolean altersCode = key.altCodeWhileTyping() && sTimerProxy.isTypingState();
         final int code = altersCode ? key.getAltCode() : primaryCode;
         if (DEBUG_LISTENER) {
@@ -312,7 +312,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         if (sInGesture || mIsDetectingGesture || mIsTrackingForActionDisabled) {
             return;
         }
-        final boolean ignoreModifierKey = mIsInDraggingFinger && key.isModifier();
+        final boolean ignoreModifierKey = mIsInDraggingFinger && (key.isModifier() || key.isSwitch());
         if (DEBUG_LISTENER) {
             Log.d(TAG, String.format("[%d] onRelease  : %s%s%s%s", mPointerId,
                     Constants.printableCode(primaryCode),
@@ -376,6 +376,11 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
     @Override
     public boolean isModifier() {
         return mCurrentKey != null && mCurrentKey.isModifier();
+    }
+
+    @Override
+    public boolean isSwitch() {
+        return mCurrentKey != null && mCurrentKey.isSwitch();
     }
 
     public Key getKeyOn(final int x, final int y) {
@@ -636,7 +641,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
 
         final Key key = getKeyOn(x, y);
         mBogusMoveEventDetector.onActualDownEvent(x, y);
-        if (key != null && key.isModifier()) {
+        if (key != null && (key.isModifier() || key.isSwitch())) {
             // Before processing a down event of modifier key, all pointers already being
             // tracked should be released.
             sPointerTrackerQueue.releaseAllPointers(eventTime);
@@ -649,7 +654,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         // A gesture should start only from a non-modifier key. Note that the gesture detection is
         // disabled when the key is repeating.
         mIsDetectingGesture = (mKeyboard != null) && mKeyboard.mId.isAlphabetKeyboard()
-                && key != null && !key.isModifier();
+                && key != null && !(key.isModifier() || key.isSwitch());
         if (mIsDetectingGesture) {
             mBatchInputArbiter.addDownEventPoint(x, y, eventTime,
                     sTypingTimeRecorder.getLastLetterTypingTime(), getActivePointerTrackerCount());
@@ -676,12 +681,12 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         // pointer's KeyDetector always allows key selection by dragging finger, such as
         // {@link MoreKeysKeyboard}.
         mIsAllowedDraggingFinger = sParams.mKeySelectionByDraggingFinger
-                || (key != null && key.isModifier())
+                || (key != null && (key.isModifier() || key.isSwitch()))
                 || mKeyDetector.alwaysAllowsKeySelectionByDraggingFinger();
         mKeyboardLayoutHasBeenChanged = false;
         mIsTrackingForActionDisabled = false;
         resetKeySelectionByDraggingFinger();
-        if (key != null) {
+        if (key != null && !key.isSwitch()) {
             // This onPress call may have changed keyboard layout. Those cases are detected at
             // {@link #setKeyboard}. In those cases, we should update key according to the new
             // keyboard layout.
@@ -697,7 +702,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
 
     private void startKeySelectionByDraggingFinger(final Key key) {
         if (!mIsInDraggingFinger) {
-            mIsInSlidingKeyInput = key.isModifier();
+            mIsInSlidingKeyInput = key.isModifier() || key.isSwitch();
         }
         mIsInDraggingFinger = true;
     }
@@ -930,7 +935,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
 
         sTimerProxy.cancelUpdateBatchInputTimer(this);
         if (!sInGesture) {
-            if (mCurrentKey != null && mCurrentKey.isModifier()) {
+            if (mCurrentKey != null && (mCurrentKey.isModifier() || mCurrentKey.isSwitch())) {
                 // Before processing an up event of modifier key, all pointers already being
                 // tracked should be released.
                 sPointerTrackerQueue.releaseAllPointersExcept(this, eventTime);

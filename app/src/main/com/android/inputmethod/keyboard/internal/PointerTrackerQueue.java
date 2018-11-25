@@ -25,6 +25,7 @@ public final class PointerTrackerQueue {
     private static final boolean DEBUG = false;
 
     public interface Element {
+        public boolean isSwitch();
         public boolean isModifier();
         public boolean isInDraggingFinger();
         public void onPhantomUpEvent(long eventTime);
@@ -105,7 +106,7 @@ public final class PointerTrackerQueue {
                 if (element == pointer) {
                     break; // Stop releasing elements.
                 }
-                if (!element.isModifier()) {
+                if (!element.isModifier() && !element.isSwitch()) {
                     element.onPhantomUpEvent(eventTime);
                     continue; // Remove this element from the expandableArray.
                 }
@@ -183,7 +184,7 @@ public final class PointerTrackerQueue {
                 if (element == pointer) {
                     return false; // Stop searching modifier key.
                 }
-                if (element.isModifier()) {
+                if (element.isModifier() || element.isSwitch()) {
                     return true;
                 }
             }
