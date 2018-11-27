@@ -1376,7 +1376,12 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     // completely replace #onCodeInput.
     public void onEvent(@Nonnull final Event event) {
         if (Constants.CODE_SHORTCUT == event.mKeyCode) {
-            mRichImm.switchToShortcutIme(this);
+            Intent intent = new Intent();
+            intent.setAction("com.android.inputmethod.Correction_Undo");
+            intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+            intent.putExtra("undo", 1);
+            sendBroadcast(intent);
+//            mRichImm.switchToShortcutIme(this);
         }
         final InputTransaction completeInputTransaction =
                 mInputLogic.onCodeInput(mSettings.getCurrent(), event,
