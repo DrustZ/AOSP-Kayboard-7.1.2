@@ -363,6 +363,9 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
     public void setKeyboardActionListener(final KeyboardActionListener listener) {
         mKeyboardActionListener = listener;
         PointerTracker.setKeyboardActionListener(listener);
+        if (mDrawingPreviewPlacerView != null){
+            mDrawingPreviewPlacerView.setKeyboardActionListener(listener);
+        }
     }
 
     // TODO: We should reconsider which coordinate system should be used to represent keyboard

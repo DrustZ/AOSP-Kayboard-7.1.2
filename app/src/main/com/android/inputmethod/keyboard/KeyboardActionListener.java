@@ -101,6 +101,9 @@ public interface KeyboardActionListener {
      */
     public boolean onCustomRequest(int requestCode);
 
+    //when correction text dropped
+    public void onCorrectionDropped(int x, int y, String correction);
+
     public static final KeyboardActionListener EMPTY_LISTENER = new Adapter();
 
     public static class Adapter implements KeyboardActionListener {
@@ -128,5 +131,7 @@ public interface KeyboardActionListener {
         public boolean onCustomRequest(int requestCode) {
             return false;
         }
+        @Override
+        public void onCorrectionDropped(int x, int y, String correction) {}
     }
 }

@@ -1478,6 +1478,17 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         // Nothing to do so far.
     }
 
+    @Override
+    public void onCorrectionDropped(int x, int y, String correction) {
+        Intent intent = new Intent();
+        intent.setAction("com.android.inputmethod.Correction");
+        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        intent.putExtra("x", x);
+        intent.putExtra("y", y);
+        intent.putExtra("text", correction);
+        sendBroadcast(intent);
+    }
+
     public boolean hasSuggestionStripView() {
         return null != mSuggestionStripView;
     }

@@ -16,7 +16,9 @@
 
 package com.android.inputmethod.keyboard.internal;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -33,6 +35,8 @@ import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.android.inputmethod.keyboard.KeyboardActionListener;
+import com.android.inputmethod.keyboard.MainKeyboardView;
 import com.android.inputmethod.latin.common.CoordinateUtils;
 
 import org.w3c.dom.Text;
@@ -48,6 +52,8 @@ public final class DrawingPreviewPlacerView extends RelativeLayout {
 
     private TextView mIndicatorView = null;
 
+    private KeyboardActionListener mKBListener = null;
+
     public DrawingPreviewPlacerView(final Context context, final AttributeSet attrs) {
         super(context, attrs);
         setWillNotDraw(false);
@@ -58,6 +64,10 @@ public final class DrawingPreviewPlacerView extends RelativeLayout {
         mIndicatorView.setTextSize(19);
         mIndicatorView.setTextColor(0xbf339966);
         mIndicatorView.setGravity(Gravity.CENTER);
+    }
+
+    public void setKeyboardActionListener(KeyboardActionListener listener){
+        mKBListener = listener;
     }
 
     public void setHardwareAcceleratedDrawingEnabled(final boolean enabled) {
@@ -140,10 +150,12 @@ public final class DrawingPreviewPlacerView extends RelativeLayout {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
+                if (mIndicatorView.getParent() != null)
+                    mKBListener.onCorrectionDropped(rawX, rawY, mIndicatorView.getText().toString());
                 removeIndicatorView();
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (rawY > CoordinateUtils.y(mKeyboardViewOrigin) + 30){
+                if (rawY > CoordinateUtils.y(mKeyboardViewOrigin) + 50){
                     removeIndicatorView();
                 } else {
                     mIndicatorView.setX(rawX-mIndicatorView.getWidth()/2-10);
