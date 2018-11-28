@@ -1016,6 +1016,23 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         //if switch and slide, we ignore
         if (!(isInSlidingKeyInput && mTouchDownKey.isSwitch())) {
             detectAndSendKey(currentKey, mKeyX, mKeyY, eventTime);
+        } else {
+            //else we send the signal
+            // only if the key is different
+            if (!currentKey.isSwitch()){
+                //swipe right
+                if (x - mTouchDownKey.getX() > 80 &&  mTouchDownKey.getY() - y < 100){
+                    sListener.onSwitchRightSwiped();
+                }
+                //swipe left
+                else if (mTouchDownKey.getX() - x > 80 && mTouchDownKey.getY() - y < 100){
+                    sListener.onSwitchLeftSwiped();
+                }
+                //swipe up
+                else if (mTouchDownKey.getY() - y > 100) {
+                    //pass
+                }
+            }
         }
         mTouchDownKey = null;
         if (isInSlidingKeyInput) {

@@ -104,6 +104,10 @@ public interface KeyboardActionListener {
     //when correction text dropped
     public void onCorrectionDropped(int x, int y, String correction);
 
+    public void onSwitchLeftSwiped();
+
+    public void onSwitchRightSwiped();
+
     public static final KeyboardActionListener EMPTY_LISTENER = new Adapter();
 
     public static class Adapter implements KeyboardActionListener {
@@ -133,5 +137,9 @@ public interface KeyboardActionListener {
         }
         @Override
         public void onCorrectionDropped(int x, int y, String correction) {}
+        @Override
+        public void onSwitchRightSwiped() {}
+        @Override
+        public void onSwitchLeftSwiped() {}
     }
 }

@@ -1241,6 +1241,7 @@ public final class InputLogic {
     private void handleLanguageSwitchKey() {
         //dont switch, treat as a correction
 //        mLatinIME.switchToNextSubtype();
+        mLatinIME.onSwitchTapped();
     }
 
     /**
