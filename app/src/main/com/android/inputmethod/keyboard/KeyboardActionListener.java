@@ -108,6 +108,8 @@ public interface KeyboardActionListener {
 
     public void onSwitchRightSwiped();
 
+    public void moveCursor(int direction);
+
     public static final KeyboardActionListener EMPTY_LISTENER = new Adapter();
 
     public static class Adapter implements KeyboardActionListener {
@@ -141,5 +143,7 @@ public interface KeyboardActionListener {
         public void onSwitchRightSwiped() {}
         @Override
         public void onSwitchLeftSwiped() {}
+        @Override
+        public void moveCursor(int direction) {}
     }
 }

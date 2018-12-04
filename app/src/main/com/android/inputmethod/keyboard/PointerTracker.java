@@ -150,6 +150,8 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
     // if not a NOT_A_CODE, the key of this code is repeating
     private int mCurrentRepeatingKeyCode = Constants.NOT_A_CODE;
 
+    private static KBGestureProcessor mGestureProcessor = new KBGestureProcessor();
+
     // true if dragging finger is allowed.
     private boolean mIsAllowedDraggingFinger;
 
@@ -207,6 +209,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
 
     public static void setKeyboardActionListener(final KeyboardActionListener listener) {
         sListener = listener;
+        mGestureProcessor.setKeyboardActionListener(listener);
     }
 
     public static void setKeyDetector(final KeyDetector keyDetector) {
@@ -614,6 +617,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         case MotionEvent.ACTION_DOWN:
         case MotionEvent.ACTION_POINTER_DOWN:
             onDownEvent(x, y, eventTime, keyDetector);
+            mGestureProcessor.reset();
             break;
         case MotionEvent.ACTION_UP:
         case MotionEvent.ACTION_POINTER_UP:
@@ -744,6 +748,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
             sInGesture = true;
         }
         if (sInGesture) {
+            mGestureProcessor.processGestureEvent(x, y, eventTime);
             if (key != null) {
                 mBatchInputArbiter.updateBatchInput(eventTime, this);
             }
