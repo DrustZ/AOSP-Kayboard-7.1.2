@@ -2,6 +2,8 @@ package com.android.inputmethod.keyboard;
 
 import android.graphics.Point;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +12,7 @@ public class KBGestureProcessor {
     final float Epsilon = (float) 1e-3;
     final float Infinite = (float) 1e10;
     private KeyboardActionListener mListener = null;
+    public MainKeyboardView KBView = null;
 
     ArrayList<Points> pts = new ArrayList<Points>();
     //line detection
@@ -236,6 +239,8 @@ public class KBGestureProcessor {
         centery = ((x1*x1+y1*y1)*(x3-x2) + (x2*x2+y2*y2)*(x1-x3) + (x3*x2+y3*y2)*(x2-x1))/d;
         float r = (float)Math.sqrt((centerx-x1)*(centerx-x1)+(centery-y1)*(centery-y1));
 
+        centerx = (float)(centerx*0.4 + x2*0.6);
+        centery = (float)(centery*0.4 + y2*0.6);
 //        Log.e("[Diff]", "getCircleCenter: x "+ centerx + " y " + centery + " radius "+r );
         if (r > 600 || centerx < 50 || centery < 50 || centerx > 950 || centery > 550){ //too large
             centerx = Infinite;
@@ -281,10 +286,11 @@ public class KBGestureProcessor {
             }
 
             if (lastcenter != null && diff > 20){
-                if (Math.abs(centerx-lastcenter.x)>300 || Math.abs(centery-lastcenter.y) > 200){
+                if (Math.abs(centerx-lastcenter.x)>300 || Math.abs(centery-lastcenter.y) > 300){
                     lastcenter = newcenter;
                     backupCenter = null;
                     Log.e("[Log]", "aa new center: x "+centerx + " y "+ centery);
+                    KBView.updateCenter((int)lastcenter.x, (int)lastcenter.y, 0xFFFF0000);
                 }
             }
 
@@ -292,6 +298,7 @@ public class KBGestureProcessor {
                 lastcenter = newcenter;
                 backupCenter = null;
                 Log.e("[Log]", "new center: x "+centerx + " y "+ centery);
+                KBView.updateCenter((int)lastcenter.x, (int)lastcenter.y, 0xFF00FF00);
             }
 
             if (lastcenter == null && backupCenter == null) {
@@ -301,6 +308,7 @@ public class KBGestureProcessor {
             else if (lastcenter == null && backupCenter != null){
                 lastcenter = backupCenter;
                 backupCenter = null;
+                KBView.updateCenter((int)lastcenter.x, (int)lastcenter.y, 0xFF00FF00);
                 Log.e("[Log]", "new center: x "+centerx + " y "+ centery);
             }
         }
@@ -313,8 +321,11 @@ public class KBGestureProcessor {
         float diff = diffTwoAngles(a, lastAngle);
 
 //        Log.e("[Angle]", ""+a);
-
-        if (Math.abs(diff) > 5){
+        int threshold = 30;
+        if (linedirection == 1 || linedirection == 2){
+            threshold = 5;
+        }
+        if (Math.abs(diff) > threshold){
             float velocity = 100*Math.abs(diff)/(lastpoint.time-lastAngle_time);
             velocity = vfilter.process(velocity);
             if ((diff > -20 && diff < -1 && curDirection == 1) || (diff < 20 && diff > 1 && curDirection == -1)){

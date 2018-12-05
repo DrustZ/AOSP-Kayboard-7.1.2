@@ -34,6 +34,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.android.inputmethod.R;
 import com.android.inputmethod.accessibility.AccessibilityUtils;
@@ -271,6 +272,7 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
 
         mLanguageOnSpacebarHorizontalMargin = (int)getResources().getDimension(
                 R.dimen.config_language_on_spacebar_horizontal_margin);
+
     }
 
     @Override
@@ -363,6 +365,7 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
     public void setKeyboardActionListener(final KeyboardActionListener listener) {
         mKeyboardActionListener = listener;
         PointerTracker.setKeyboardActionListener(listener);
+        PointerTracker.sGestureProcessor.KBView = this;
         if (mDrawingPreviewPlacerView != null){
             mDrawingPreviewPlacerView.setKeyboardActionListener(listener);
         }
@@ -761,6 +764,23 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
                 && AccessibilityUtils.getInstance().isAccessibilityEnabled()) {
             accessibilityDelegate.onHideWindow();
         }
+    }
+
+    private int centerx;
+    private int centery;
+    Paint paint = new Paint();
+
+    public void updateCenter(int x, int y, int color){
+        paint.setColor(color);
+        centerx = x;
+        centery = y;
+        this.invalidate();
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        canvas.drawCircle(centerx, centery, 20, paint);
     }
 
     /**
