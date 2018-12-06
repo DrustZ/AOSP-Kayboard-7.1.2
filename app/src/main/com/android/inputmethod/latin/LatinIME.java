@@ -1520,14 +1520,25 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         sendBroadcast(intent);
     }
 
+    boolean ringMode = false;
+
     @Override
-    public void moveCursor(int direction) {
+    public void enteringRingMode(boolean enter) {
+        ringMode = enter;
+    }
+
+    @Override
+    public void moveCursor(int direction, boolean wordlevel) {
         int keycode = 0;
         if (direction == 1) keycode = KeyEvent.KEYCODE_DPAD_LEFT;
         if (direction == 2) keycode = KeyEvent.KEYCODE_DPAD_RIGHT;
         if (direction == 3) keycode = KeyEvent.KEYCODE_DPAD_UP;
         if (direction == 4) keycode = KeyEvent.KEYCODE_DPAD_DOWN;
-        mInputLogic.sendDownUpKeyEvent(keycode);
+        if (wordlevel){
+            mInputLogic.sendDownUpKeyEvents(keycode, KeyEvent.META_CTRL_ON);
+        } else {
+            mInputLogic.sendDownUpKeyEvent(keycode);
+        }
     }
 
     public boolean hasSuggestionStripView() {
@@ -1589,6 +1600,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     // TODO[IL]: Move this out of LatinIME.
     public void getSuggestedWords(final int inputStyle, final int sequenceNumber,
             final OnGetSuggestedWordsCallback callback) {
+        if (ringMode) return;
         final Keyboard keyboard = mKeyboardSwitcher.getKeyboard();
         if (keyboard == null) {
             callback.onGetSuggestedWords(SuggestedWords.getEmptyInstance());

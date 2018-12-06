@@ -623,9 +623,11 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         case MotionEvent.ACTION_UP:
         case MotionEvent.ACTION_POINTER_UP:
             onUpEvent(x, y, eventTime);
+            sGestureProcessor.reset();
             break;
         case MotionEvent.ACTION_CANCEL:
             onCancelEvent(x, y, eventTime);
+            sGestureProcessor.reset();
             break;
         }
     }

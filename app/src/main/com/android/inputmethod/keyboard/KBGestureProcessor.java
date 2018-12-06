@@ -110,6 +110,7 @@ public class KBGestureProcessor {
         xfilter.clear();
         yfilter.clear();
         vfilter.clear();
+        if (mListener != null) mListener.enteringRingMode(false);
     }
 
     public void setKeyboardActionListener(final KeyboardActionListener listener) {
@@ -171,10 +172,10 @@ public class KBGestureProcessor {
         }
         linearRegress(xs, ys);
         float rs1 = rsquare;
-        Log.e("[Log]", "detectLine: r2 "+rs1 + " slope "+beta);
+//        Log.e("[Log]", "detectLine: r2 "+rs1 + " slope "+beta);
         linearRegress(ys, xs); //do twice to avoid failure on vertical condition
         float rs2 = rsquare;
-        Log.e("[Log]", "detectLine: r2 "+rs2 + " slope "+beta);
+//        Log.e("[Log]", "detectLine: r2 "+rs2 + " slope "+beta);
 
         if (Math.abs(rs1) < 0.6 && Math.abs(rs2) < 0.6){
             return false;
@@ -281,15 +282,15 @@ public class KBGestureProcessor {
             //if the movement is large or not
             float diff = Math.abs(diffTwoAngles(getAngle(lastpoint.x, lastpoint.y, centerx, centery),
                     getAngle(pts.get(maxPoints - 5).x, pts.get(maxPoints - 5).y, centerx, centery)));
-            if (diff > 20){
+            if (diff > 25){
                 backupCenter = newcenter;
             }
 
             if (lastcenter != null && diff > 20){
-                if (Math.abs(centerx-lastcenter.x)>300 || Math.abs(centery-lastcenter.y) > 300){
+                if (Math.abs(centerx-lastcenter.x)>200 || Math.abs(centery-lastcenter.y) > 200){
                     lastcenter = newcenter;
                     backupCenter = null;
-                    Log.e("[Log]", "aa new center: x "+centerx + " y "+ centery);
+//                    Log.e("[Log]", "aa new center: x "+centerx + " y "+ centery);
                     KBView.updateCenter((int)lastcenter.x, (int)lastcenter.y, 0xFFFF0000);
                 }
             }
@@ -297,7 +298,7 @@ public class KBGestureProcessor {
             if (lastcenter == null && diff > 20){
                 lastcenter = newcenter;
                 backupCenter = null;
-                Log.e("[Log]", "new center: x "+centerx + " y "+ centery);
+//                Log.e("[Log]", "new center: x "+centerx + " y "+ centery);
                 KBView.updateCenter((int)lastcenter.x, (int)lastcenter.y, 0xFF00FF00);
             }
 
@@ -309,7 +310,7 @@ public class KBGestureProcessor {
                 lastcenter = backupCenter;
                 backupCenter = null;
                 KBView.updateCenter((int)lastcenter.x, (int)lastcenter.y, 0xFF00FF00);
-                Log.e("[Log]", "new center: x "+centerx + " y "+ centery);
+//                Log.e("[Log]", "new center: x "+centerx + " y "+ centery);
             }
         }
 
@@ -320,10 +321,9 @@ public class KBGestureProcessor {
         }
         float diff = diffTwoAngles(a, lastAngle);
 
-//        Log.e("[Angle]", ""+a);
-        int threshold = 30;
+        int threshold = 60;
         if (linedirection == 1 || linedirection == 2){
-            threshold = 5;
+            threshold = 15;
         }
         if (Math.abs(diff) > threshold){
             float velocity = 100*Math.abs(diff)/(lastpoint.time-lastAngle_time);
@@ -336,7 +336,7 @@ public class KBGestureProcessor {
                     change_count = 0;
                     curDirection = -curDirection;
                     //move opposite
-                    Log.e("[Log]", "Direction change!" );
+//                    Log.e("[Log]", "Direction change!" );
                     moveCursor(diff, velocity);
                 } else return;
             } else {
@@ -353,7 +353,7 @@ public class KBGestureProcessor {
 
         if (accumAngle >= 360 || accumAngle <= -360){
             lastcenter = null;
-            Log.e("[Log]", "center nulled!");
+//            Log.e("[Log]", "center nulled!");
             accumAngle = 0;
         }
     }
@@ -380,11 +380,13 @@ public class KBGestureProcessor {
             }
             if (!lineres && !lineDetected){
                 notRingmode = true;//the gesture doesn't begin with a line, so we abandon it
+                if (mListener != null) mListener.enteringRingMode(false);
                 Log.e("[Log]", "not entering ring mode" );
             } else if (lineres){
                 lineDetected = true;
             } else {
                 ringmodeEntered = true;//no longer line, entering ring mode
+                if (mListener != null) mListener.enteringRingMode(true);
                 Log.e("[Log]", "entering circle mode");
             }
         }
@@ -396,9 +398,10 @@ public class KBGestureProcessor {
 
     private void moveCursor(float diff, float velocity){
         if (mListener != null){
+//            Log.e("[Log]", "Velo " + velocity );
             int movedirection = 0;
             if (!ringmodeEntered){
-                mListener.moveCursor(linedirection);
+                mListener.moveCursor(linedirection, false);
             }
             if (linedirection == 1 || linedirection == 2){
                 if (curDirection == 1){ // clockwise: right
@@ -413,12 +416,20 @@ public class KBGestureProcessor {
                     movedirection = 4;
                 }
             }
-            mListener.moveCursor(movedirection);
-            String dir = "left";
-            if (movedirection == 2) dir = "right";
-            if (movedirection == 3) dir = "up";
-            if (movedirection == 4) dir = "down";
-//            Log.e("[Log]", "Moving direction: "+dir);
+            //CD-gain
+            int movetime = 1;
+            if (curDirection <= 2 && velocity > 20){
+                movetime = (int)Math.ceil(5*(1-Math.exp(0.07*(20-velocity))));
+            }
+            // word-level
+//            if (curDirection <= 2 && velocity > 20){
+//                mListener.moveCursor(movedirection, true);
+//            } else {
+//                mListener.moveCursor(movedirection, false);
+//            }
+            for (int i = 0; i < movetime; i++) {
+                mListener.moveCursor(movedirection, false);
+            }
         }
     }
 

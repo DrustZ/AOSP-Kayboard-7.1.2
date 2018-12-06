@@ -1981,6 +1981,30 @@ public final class InputLogic {
                 KeyEvent.FLAG_SOFT_KEYBOARD | KeyEvent.FLAG_KEEP_TOUCH_MODE));
     }
 
+    public void sendDownUpKeyEvents(final int keyCode, final int flag) {
+        final long eventTime = SystemClock.uptimeMillis();
+        mConnection.sendKeyEvent(new KeyEvent(eventTime, eventTime,
+                KeyEvent.ACTION_DOWN, keyCode, 0, flag, KeyCharacterMap.VIRTUAL_KEYBOARD, 0,
+                KeyEvent.FLAG_SOFT_KEYBOARD | KeyEvent.FLAG_KEEP_TOUCH_MODE));
+        mConnection.sendKeyEvent(new KeyEvent(SystemClock.uptimeMillis(), eventTime,
+                KeyEvent.ACTION_UP, keyCode, 0, flag, KeyCharacterMap.VIRTUAL_KEYBOARD, 0,
+                KeyEvent.FLAG_SOFT_KEYBOARD | KeyEvent.FLAG_KEEP_TOUCH_MODE));
+    }
+
+    public void sendDownKeyEvent(final int keyCode, final int flag) {
+        final long eventTime = SystemClock.uptimeMillis();
+        mConnection.mIC.sendKeyEvent(new KeyEvent(eventTime, eventTime,
+                KeyEvent.ACTION_DOWN, keyCode, 0, flag, KeyCharacterMap.VIRTUAL_KEYBOARD, 0,
+                KeyEvent.FLAG_SOFT_KEYBOARD | KeyEvent.FLAG_KEEP_TOUCH_MODE));
+    }
+
+    public void sendUpKeyEvent(final int keyCode, final int flag) {
+        final long eventTime = SystemClock.uptimeMillis();
+        mConnection.mIC.sendKeyEvent(new KeyEvent(eventTime, eventTime,
+                KeyEvent.ACTION_UP, keyCode, 0, flag, KeyCharacterMap.VIRTUAL_KEYBOARD, 0,
+                KeyEvent.FLAG_SOFT_KEYBOARD | KeyEvent.FLAG_KEEP_TOUCH_MODE));
+    }
+
     /**
      * Sends a code point to the editor, using the most appropriate method.
      *

@@ -108,7 +108,9 @@ public interface KeyboardActionListener {
 
     public void onSwitchRightSwiped();
 
-    public void moveCursor(int direction);
+    public void enteringRingMode(boolean enter);
+
+    public void moveCursor(int direction, boolean wordlevel);
 
     public static final KeyboardActionListener EMPTY_LISTENER = new Adapter();
 
@@ -144,6 +146,8 @@ public interface KeyboardActionListener {
         @Override
         public void onSwitchLeftSwiped() {}
         @Override
-        public void moveCursor(int direction) {}
+        public void enteringRingMode(boolean enter) {}
+        @Override
+        public void moveCursor(int direction, boolean wordlevel) {}
     }
 }
