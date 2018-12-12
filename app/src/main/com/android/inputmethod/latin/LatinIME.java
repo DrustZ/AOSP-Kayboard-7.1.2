@@ -1521,10 +1521,23 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     }
 
     boolean ringMode = false;
+    boolean editMode = false;
 
     @Override
     public void enteringRingMode(boolean enter) {
         ringMode = enter;
+    }
+
+    @Override
+    public void enableEditing() {
+        editMode = true;
+        mInputLogic.sendDownKeyEvent(KeyEvent.KEYCODE_SHIFT_LEFT, 0);
+    }
+
+    @Override
+    public void disableEditing() {
+        editMode = false;
+        mInputLogic.sendDownUpKeyEvent(KeyEvent.KEYCODE_SHIFT_LEFT);
     }
 
     @Override
@@ -1534,10 +1547,15 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         if (direction == 2) keycode = KeyEvent.KEYCODE_DPAD_RIGHT;
         if (direction == 3) keycode = KeyEvent.KEYCODE_DPAD_UP;
         if (direction == 4) keycode = KeyEvent.KEYCODE_DPAD_DOWN;
-        if (wordlevel){
-            mInputLogic.sendDownUpKeyEvents(keycode, KeyEvent.META_CTRL_ON);
+        if (!editMode) {
+            if (wordlevel) {
+                mInputLogic.sendDownUpKeyEvents(keycode, KeyEvent.META_CTRL_ON);
+            } else {
+                mInputLogic.sendDownUpKeyEvent(keycode);
+            }
         } else {
-            mInputLogic.sendDownUpKeyEvent(keycode);
+            Log.e(TAG, "moveCursor shift on" );
+            mInputLogic.sendDownUpKeyEvents(keycode, KeyEvent.META_SHIFT_ON);
         }
     }
 

@@ -216,7 +216,7 @@ public class KBGestureProcessor {
                 ((linedirection == 3 || linedirection == 4) && (tmpdirection == 3 || tmpdirection == 4)) ){
             linedirection = tmpdirection;
             // call move here~
-            Log.e("[Log]", "line detected"+linedirection);
+//            Log.e("[Log]", "line detected"+linedirection);
             return true;
         }
         return false;

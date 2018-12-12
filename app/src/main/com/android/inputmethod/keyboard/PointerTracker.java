@@ -156,6 +156,9 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
     // true if dragging finger is allowed.
     private boolean mIsAllowedDraggingFinger;
 
+    //if edge from left is entered
+    private boolean motionEdge = false;
+
     private final BatchInputArbiter mBatchInputArbiter;
     private final GestureStrokeDrawingPoints mGestureStrokeDrawingPoints;
 
@@ -616,6 +619,11 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         final int y = (int)me.getY(index);
         switch (action) {
         case MotionEvent.ACTION_DOWN:
+            if (x < 5){
+                Log.e(TAG, "on swipe left edge");
+                motionEdge = true;
+                sListener.enableEditing();
+            }
         case MotionEvent.ACTION_POINTER_DOWN:
             onDownEvent(x, y, eventTime, keyDetector);
             sGestureProcessor.reset();
@@ -623,12 +631,21 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         case MotionEvent.ACTION_UP:
         case MotionEvent.ACTION_POINTER_UP:
             onUpEvent(x, y, eventTime);
-            sGestureProcessor.reset();
+            cancelEditingGestures();
             break;
         case MotionEvent.ACTION_CANCEL:
             onCancelEvent(x, y, eventTime);
-            sGestureProcessor.reset();
+            cancelEditingGestures();
             break;
+        }
+    }
+
+    void cancelEditingGestures(){
+        if (motionEdge){
+            motionEdge = false;
+            sListener.disableEditing();
+        } else {
+            sGestureProcessor.reset();
         }
     }
 
@@ -751,7 +768,9 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
             sInGesture = true;
         }
         if (sInGesture) {
-            sGestureProcessor.processGestureEvent(x, y, eventTime);
+            if (!motionEdge) {
+                sGestureProcessor.processGestureEvent(x, y, eventTime);
+            }
             if (key != null) {
                 mBatchInputArbiter.updateBatchInput(eventTime, this);
             }
@@ -766,7 +785,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         if (mIsTrackingForActionDisabled) {
             return;
         }
-
         if (sGestureEnabler.shouldHandleGesture() && me != null) {
             // Add historical points to gesture path.
             final int pointerIndex = me.findPointerIndex(mPointerId);
