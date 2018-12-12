@@ -42,7 +42,7 @@ public class KBGestureProcessor {
     float accumAngle = 0; //total angle moved
     float velocity = 0;
     int pointsToDetectLine = 5;
-    int maxPoints = 15;
+    int maxPoints = 10;
 
     ArrayList<org.opencv.core.Point> cPoints = new ArrayList<org.opencv.core.Point>();
     org.opencv.core.Point lastcenter = null; //last circle center
@@ -119,6 +119,7 @@ public class KBGestureProcessor {
         accumAngle = 0;
         velocity = 0;
         pts.clear();
+        cPoints.clear();
 
         xfilter.clear();
         yfilter.clear();

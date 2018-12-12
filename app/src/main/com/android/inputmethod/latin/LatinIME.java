@@ -1572,7 +1572,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
                 mInputLogic.sendDownUpKeyEvent(keycode);
             }
         } else {
-            Log.e(TAG, "moveCursor shift on" );
             mInputLogic.sendDownUpKeyEvents(keycode, KeyEvent.META_SHIFT_ON);
         }
     }

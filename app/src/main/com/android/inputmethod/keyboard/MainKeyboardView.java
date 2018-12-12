@@ -768,7 +768,13 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
 
     private int centerx;
     private int centery;
+    private boolean editmode = false;
     Paint paint = new Paint();
+
+    public void setEditmode(Boolean mode){
+        editmode = mode;
+        this.invalidate();
+    }
 
     public void updateCenter(int x, int y, int color){
         paint.setColor(color);
@@ -780,6 +786,9 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (editmode) {
+            canvas.drawARGB(150, 150, 150, 150);
+        }
         canvas.drawCircle(centerx, centery, 20, paint);
     }
 

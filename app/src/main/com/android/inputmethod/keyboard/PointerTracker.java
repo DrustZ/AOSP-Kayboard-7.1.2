@@ -626,13 +626,16 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         final int y = (int)me.getY(index);
         switch (action) {
         case MotionEvent.ACTION_DOWN:
-            if (x < 5){
+        case MotionEvent.ACTION_POINTER_DOWN:
+            if (x < 6){
                 Log.e(TAG, "on swipe left edge");
                 motionEdge = true;
+                //put a shadow on kb view
+                sGestureProcessor.KBView.setEditmode(true);
                 sListener.enableEditing();
+            } else {
+                onDownEvent(x, y, eventTime, keyDetector);
             }
-        case MotionEvent.ACTION_POINTER_DOWN:
-            onDownEvent(x, y, eventTime, keyDetector);
             clickCount += 1;
             starttime = me.getEventTime();
             sGestureProcessor.reset();
@@ -648,7 +651,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
                 duration = 0;
                 clickCount = 0;
             }
-
             onUpEvent(x, y, eventTime);
             cancelEditingGestures();
             break;
@@ -664,6 +666,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
     void cancelEditingGestures(){
         if (motionEdge){
             motionEdge = false;
+            sGestureProcessor.KBView.setEditmode(false);
             sListener.disableEditing();
         } else {
             sGestureProcessor.reset();
@@ -806,6 +809,8 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         if (mIsTrackingForActionDisabled) {
             return;
         }
+        if (motionEdge) return;
+
         if (sGestureEnabler.shouldHandleGesture() && me != null) {
             // Add historical points to gesture path.
             final int pointerIndex = me.findPointerIndex(mPointerId);
