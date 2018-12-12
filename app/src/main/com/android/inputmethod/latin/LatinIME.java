@@ -1310,7 +1310,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
     @Override
     public boolean onCustomRequest(final int requestCode) {
-        if (isShowingOptionDialog()) return false;
+        if (isShowingOptionDialog() || editMode) return false;
         switch (requestCode) {
         case Constants.CUSTOM_CODE_SHOW_INPUT_METHOD_PICKER:
             if (mRichImm.hasMultipleEnabledIMEsOrSubtypes(true /* include aux subtypes */)) {
@@ -1358,6 +1358,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     @Override
     public void onCodeInput(final int codePoint, final int x, final int y,
             final boolean isKeyRepeat) {
+        if (editMode) return;
         // TODO: this processing does not belong inside LatinIME, the caller should be doing this.
         final MainKeyboardView mainKeyboardView = mKeyboardSwitcher.getMainKeyboardView();
         // x and y include some padding, but everything down the line (especially native
@@ -1431,6 +1432,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
     @Override
     public void onUpdateBatchInput(final InputPointers batchPointers) {
+        if (editMode) return;
         mInputLogic.onUpdateBatchInput(batchPointers);
     }
 
@@ -1442,6 +1444,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
     @Override
     public void onCancelBatchInput() {
+        if (editMode) return;
         mInputLogic.onCancelBatchInput(mHandler);
         mGestureConsumer.onGestureCanceled();
     }
@@ -1471,6 +1474,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     // Called from PointerTracker through the KeyboardActionListener interface
     @Override
     public void onFinishSlidingInput() {
+        if (editMode) return;
         // User finished sliding input.
         mKeyboardSwitcher.onFinishSlidingInput(getCurrentAutoCapsState(),
                 getCurrentRecapitalizeState());
@@ -1496,6 +1500,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
     @Override
     public void onSwitchLeftSwiped() {
+        if (editMode) return;
         Intent intent = new Intent();
         intent.setAction("com.android.inputmethod.SmartCorrection");
         intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
@@ -1505,6 +1510,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
     @Override
     public void onSwitchRightSwiped() {
+        if (editMode) return;
         Intent intent = new Intent();
         intent.setAction("com.android.inputmethod.SmartCorrection");
         intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
@@ -1513,6 +1519,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     }
 
     public void onSwitchTapped() {
+        if (editMode) return;
         Intent intent = new Intent();
         intent.setAction("com.android.inputmethod.SmartCorrection");
         intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
@@ -1538,6 +1545,17 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     public void disableEditing() {
         editMode = false;
         mInputLogic.sendDownUpKeyEvent(KeyEvent.KEYCODE_SHIFT_LEFT);
+    }
+
+    @Override
+    public void copyText() {
+        if (!editMode) return;
+        mInputLogic.mConnection.mIC.performContextMenuAction(android.R.id.copy);
+    }
+
+    @Override
+    public void pasteText() {
+        mInputLogic.mConnection.mIC.performContextMenuAction(android.R.id.paste);
     }
 
     @Override
@@ -1757,6 +1775,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     @Override
     public void onPressKey(final int primaryCode, final int repeatCount,
             final boolean isSinglePointer) {
+        if (editMode) return;
         mKeyboardSwitcher.onPressKey(primaryCode, isSinglePointer, getCurrentAutoCapsState(),
                 getCurrentRecapitalizeState());
         hapticAndAudioFeedback(primaryCode, repeatCount);
@@ -1766,6 +1785,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     // press matching call is {@link #onPressKey(int,int,boolean)} above.
     @Override
     public void onReleaseKey(final int primaryCode, final boolean withSliding) {
+        if (editMode) return;
         mKeyboardSwitcher.onReleaseKey(primaryCode, withSliding, getCurrentAutoCapsState(),
                 getCurrentRecapitalizeState());
     }

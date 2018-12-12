@@ -593,6 +593,12 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         sListener.onCancelBatchInput();
     }
 
+
+    private static final long DOUBLE_CLICK_TIME_DELTA = 300;
+    long duration = 0;
+    long starttime = 0;
+    int clickCount = 0;
+
     public void processMotionEvent(final MotionEvent me, final KeyDetector keyDetector) {
         final int action = me.getActionMasked();
         final long eventTime = me.getEventTime();
@@ -614,6 +620,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
             }
             return;
         }
+
         final int index = me.getActionIndex();
         final int x = (int)me.getX(index);
         final int y = (int)me.getY(index);
@@ -626,16 +633,30 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
             }
         case MotionEvent.ACTION_POINTER_DOWN:
             onDownEvent(x, y, eventTime, keyDetector);
+            clickCount += 1;
+            starttime = me.getEventTime();
             sGestureProcessor.reset();
             break;
         case MotionEvent.ACTION_UP:
         case MotionEvent.ACTION_POINTER_UP:
+            duration += me.getEventTime() - starttime;
+            if (clickCount == 2 && duration < DOUBLE_CLICK_TIME_DELTA){
+                clickCount = 0;
+                duration = 0;
+                sListener.copyText();
+            } else if (duration >= DOUBLE_CLICK_TIME_DELTA || clickCount >= 2){
+                duration = 0;
+                clickCount = 0;
+            }
+
             onUpEvent(x, y, eventTime);
             cancelEditingGestures();
             break;
         case MotionEvent.ACTION_CANCEL:
             onCancelEvent(x, y, eventTime);
             cancelEditingGestures();
+            duration = 0;
+            clickCount = 0;
             break;
         }
     }
@@ -989,7 +1010,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
     @Override
     public void onPhantomUpEvent(final long eventTime) {
         if (DEBUG_EVENT) {
-            printTouchEvent("onPhntEvent:", mLastX, mLastY, eventTime);
+            printTouchEvent("onPhantEvent:", mLastX, mLastY, eventTime);
         }
         onUpEventInternal(mLastX, mLastY, eventTime);
         cancelTrackingForAction();
