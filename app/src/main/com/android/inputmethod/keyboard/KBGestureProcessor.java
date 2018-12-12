@@ -253,8 +253,8 @@ public class KBGestureProcessor {
         centery = ((x1*x1+y1*y1)*(x3-x2) + (x2*x2+y2*y2)*(x1-x3) + (x3*x2+y3*y2)*(x2-x1))/d;
         float r = (float)Math.sqrt((centerx-x1)*(centerx-x1)+(centery-y1)*(centery-y1));
 
-        centerx = (float)(centerx*0.5 + x2*0.5);
-        centery = (float)(centery*0.5 + y2*0.5);
+        centerx = (float)(centerx*0.4 + x1*0.6);
+        centery = (float)(centery*0.4 + y1*0.6);
 //        Log.e("[Diff]", "getCircleCenter: x "+ centerx + " y " + centery + " radius "+r );
         if (r > 600 || centerx < 50 || centery < 50 || centerx > 950 || centery > 550){ //too large
             centerx = Infinite;
@@ -358,7 +358,7 @@ public class KBGestureProcessor {
             lastAngle_time = lastpoint.time;
         }
 
-        if (!ellipseLocated && Math.abs(accumAngle) > 90 && cPoints.size() > 7){
+        if (!ellipseLocated && Math.abs(accumAngle) > 90 && cPoints.size() > 5){
             ellipseLocated = true;
             locateEllipse();
         }
@@ -366,7 +366,7 @@ public class KBGestureProcessor {
         if (Math.abs(accumAngle) >= 270){
             lastcenter = null;
             accumAngle = 0;
-            if (cPoints.size() > 10){
+            if (cPoints.size() > 5){
                 locateEllipse();
                 cPoints.clear();
             }
@@ -412,7 +412,11 @@ public class KBGestureProcessor {
             } else if (lineres){
                 lineDetected = true;
             } else {
+                for (int i = 0; i < pts.size()-7; ++i){
+                    pts.remove(0);
+                }
                 ringmodeEntered = true;//no longer line, entering ring mode
+                mListener.kbVibrate();
                 if (mListener != null) mListener.enteringRingMode(true);
                 Log.e("[Log]", "entering circle mode");
             }
@@ -455,6 +459,9 @@ public class KBGestureProcessor {
 //            } else {
 //                mListener.moveCursor(movedirection, false);
 //            }
+            if (velocity < 15){
+                mListener.kbVibrate();
+            }
             for (int i = 0; i < movetime; i++) {
                 mListener.moveCursor(movedirection, false);
             }

@@ -112,6 +112,8 @@ public interface KeyboardActionListener {
 
     public void moveCursor(int direction, boolean wordlevel);
 
+    public void kbVibrate();
+
     public static final KeyboardActionListener EMPTY_LISTENER = new Adapter();
 
     public static class Adapter implements KeyboardActionListener {
@@ -149,5 +151,7 @@ public interface KeyboardActionListener {
         public void enteringRingMode(boolean enter) {}
         @Override
         public void moveCursor(int direction, boolean wordlevel) {}
+        @Override
+        public void kbVibrate() {}
     }
 }

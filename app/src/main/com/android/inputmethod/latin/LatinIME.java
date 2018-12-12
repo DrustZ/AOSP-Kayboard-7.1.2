@@ -1726,6 +1726,14 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         feedbackManager.performAudioFeedback(code);
     }
 
+    @Override
+    public void kbVibrate() {
+        final AudioAndHapticFeedbackManager feedbackManager =
+                AudioAndHapticFeedbackManager.getInstance();
+        final MainKeyboardView keyboardView = mKeyboardSwitcher.getMainKeyboardView();
+        feedbackManager.performHapticFeedback(keyboardView);
+    }
+
     // Callback of the {@link KeyboardActionListener}. This is called when a key is depressed;
     // release matching call is {@link #onReleaseKey(int,boolean)} below.
     @Override
