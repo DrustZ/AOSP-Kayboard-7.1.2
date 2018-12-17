@@ -652,6 +652,9 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
                 clickCount = 0;
             }
             onUpEvent(x, y, eventTime);
+            if (!motionEdge){
+                sGestureProcessor.fingerLifted(me.getEventTime());
+            }
             cancelEditingGestures();
             break;
         case MotionEvent.ACTION_CANCEL:

@@ -3,13 +3,16 @@ package com.android.inputmethod.keyboard;
 import android.graphics.Point;
 import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.RotatedRect;
 import org.opencv.imgproc.Imgproc;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +52,9 @@ public class KBGestureProcessor {
     org.opencv.core.Point backupCenter = null; // in case always can't find a good center in the ringmode
     float centerx = Infinite;
     float centery = Infinite;
+
+    //recognize editing mode
+    long gestureStartTime = 0;
 
     //filters
     StreamingMovingAverage xfilter = new StreamingMovingAverage();
@@ -126,6 +132,7 @@ public class KBGestureProcessor {
         xfilter.clear();
         yfilter.clear();
         vfilter.clear();
+        mGestureRecognizer.clear();
         if (mListener != null) mListener.enteringRingMode(false);
     }
 
@@ -392,12 +399,18 @@ public class KBGestureProcessor {
         int size = pts.size();
         if (size == 0) {
             pts.add(new Points(x, y, eventime));
+            gestureStartTime = eventime;
             return;
         }
         //too short
         if (eventime-pts.get(size-1).time < 30) return;
         pts.add(new Points(x, y, eventime));
         if (pts.size() > maxPoints) pts.remove(0);
+
+        //for gesture recognizer
+        if (eventime - gestureStartTime < 500){
+            mGestureRecognizer.addPoint(x, y);
+        }
 
         if (!ringmodeEntered && size >= pointsToDetectLine){
             boolean lineres = false;
@@ -431,7 +444,10 @@ public class KBGestureProcessor {
         //if ringmode then we process the points
         else if (ringmodeEntered && pts.size() >= maxPoints){
             cPoints.add(new org.opencv.core.Point(x, y));
-            processRingPoints();
+            //other gestures have 500 ms to accomplish
+            if (eventime - gestureStartTime > 500) {
+                processRingPoints();
+            }
         }
     }
 
@@ -474,5 +490,315 @@ public class KBGestureProcessor {
             }
         }
     }
+
+    //editing gestures
+
+    public void fingerLifted(long eventime){
+        if (eventime - gestureStartTime < 500){
+            //begin to recognize editing gestures
+            String res = mGestureRecognizer.recognize();
+        }
+    }
+
+    EditGestureRecognizer mGestureRecognizer = new EditGestureRecognizer();
+
+    class EditGestureRecognizer {
+
+        Points ORIGIN = new Points(0, 0, 0);
+        int NUMPOINTS = 32;
+
+        ArrayList<PointCloud> mGestures = new ArrayList<PointCloud>();
+        ArrayList<Points> mpoints = new ArrayList<Points>();
+
+        class PointCloud {
+            public String name;
+            public ArrayList<Points> points = null;
+            public PointCloud(String name, ArrayList<Points> points){
+                this.name = name;
+                this.points = resample(points, NUMPOINTS);
+                scale(this.points);
+                translateTo(this.points);
+            }
+        }
+
+        public void clear(){
+            mpoints.clear();
+        }
+
+        public void addPoint(int x, int y){
+            mpoints.add(new Points(x, y, 0));
+//            Log.e("[Recog]", "addPoint x: "+x+" y: "+y );
+        }
+
+        public String recognize(){
+            if (mpoints.size() < 4) return "null";
+            
+            mpoints = resample(mpoints, NUMPOINTS);
+            scale(mpoints);
+            translateTo(mpoints);
+            float b = Float.POSITIVE_INFINITY;
+            int u = -1;
+            for (int i = 0; i < mGestures.size(); ++i){
+                float d = greedyCLoudMatch(mpoints, mGestures.get(i));
+                if (d < b){
+                    b = d;
+                    u = i;
+                }
+            }
+
+            if (u == -1){
+                return "null";
+            } else {
+//                Log.e("[Recog]", "recog: " + mGestures.get(u).name + " score: " + b);
+                return mGestures.get(u).name;
+            }
+        }
+
+        //helper functions
+        private float pathLength(ArrayList<Points> points){
+            float d = 0;
+            for (int i = 1; i  < points.size(); ++i){
+                if (points.get(i).time == points.get(i-1).time)
+                { d += points.get(i).distanceTo(points.get(i-1)); }
+            }
+            return d;
+        }
+
+        private Points centroid(ArrayList<Points> points){
+            float x = 0;
+            float y = 0;
+            for (int i = 0; i < points.size(); ++i){
+                x += points.get(i).x;
+                y += points.get(i).y;
+            }
+            x /= points.size();
+            y /= points.size();
+            return new Points(x, y, 0);
+        }
+
+        private void translateTo(ArrayList<Points> points){
+            if (points.size() < 1) return;
+            Points c = centroid(points);
+            for (int i = 0; i < points.size(); i++){
+                float qx = points.get(i).x + ORIGIN.x - c.x;
+                float qy = points.get(i).y + ORIGIN.y - c.y;
+                long id = points.get(i).time;
+                points.set(i, new Points(qx, qy, id));
+            }
+        }
+
+        private void scale(ArrayList<Points> points){
+            if (points.size() < 1) return;
+            float minX = Float.POSITIVE_INFINITY;
+            float maxX = Float.NEGATIVE_INFINITY;
+            float minY = Float.POSITIVE_INFINITY;
+            float maxY = Float.NEGATIVE_INFINITY;
+            for (int i = 0; i < points.size(); ++i){
+                minX = Math.min(minX, points.get(i).x);
+                minY = Math.min(minY, points.get(i).y);
+                maxX = Math.max(maxX, points.get(i).x);
+                maxY = Math.max(maxY, points.get(i).y);
+            }
+            int size = (int)Math.max(maxX - minX, maxY - minY);
+            for (int i = 0; i < points.size(); ++i){
+                float qx = (points.get(i).x - minX)/size;
+                float qy = (points.get(i).y - minY)/size;
+                long id = points.get(i).time;
+                points.set(i, new Points(qx, qy, id));
+            }
+        }
+
+        private ArrayList<Points> resample(ArrayList<Points> points, int n){
+            if (points.size() < 1) return points;
+            float I = pathLength(points) / (n-1);
+            float D = 0;
+            ArrayList newpoints = new ArrayList<Points>();
+            newpoints.add(points.get(0));
+            for (int i = 1; i < points.size(); ++i){
+                if (points.get(i).time == points.get(i-1).time){
+                    float d = points.get(i-1).distanceTo(points.get(i));
+                    if ((D+d)>=I){
+                        float qx = points.get(i-1).x + ((I - D) / d) * (points.get(i).x - points.get(i-1).x);
+                        float qy = points.get(i-1).y + ((I - D) / d) * (points.get(i).y - points.get(i-1).y);
+                        long id = points.get(i).time;
+                        Points q = new Points(qx, qy, id);
+                        newpoints.add(q);
+                        points.add(i, q);
+                        D = 0;
+                    } else { D += d; }
+                }
+            }
+            if (newpoints.size() == n-1)
+            { newpoints.add(points.get(points.size()-1)); }
+            return newpoints;
+        }
+
+        private float cloudDistance(ArrayList<Points> pts1, ArrayList<Points> pts2, int start){
+            boolean[] matched = new boolean[pts1.size()];
+            for (int i = 0; i < pts1.size(); ++i){
+                matched[i] = false;
+            }
+            float sum = 0;
+            int i = start;
+            do {
+                int index = -1;
+                float min = Float.POSITIVE_INFINITY;
+                for (int j = 0; j < matched.length; ++j){
+                    if (!matched[j]){
+                        float d = pts1.get(i).distanceTo(pts2.get(j));
+                        if (d < min){
+                            min = d;
+                            index = j;
+                        }
+                    }
+                }
+                matched[index] = true;
+                float weight = 1-((i - start + pts1.size()) % pts1.size()) / pts1.size();
+                sum += weight * min;
+                i = (i+1) % pts1.size();
+            } while (i != start);
+            return sum;
+        }
+
+        private float greedyCLoudMatch(ArrayList<Points> points, PointCloud cloud){
+            float step = (float)Math.floor(Math.pow(points.size(), 0.5));
+            float min = Float.POSITIVE_INFINITY;
+            for (int i = 0; i < points.size(); i += step){
+                float d1 = cloudDistance(points, cloud.points, i);
+                float d2 = cloudDistance(cloud.points, points, i);
+                min = Math.min(min, Math.min(d1, d2));
+            }
+            return min;
+        }
+
+        public EditGestureRecognizer(){
+            //copy gestures
+            ArrayList<Points> points = new ArrayList<Points>();
+            int[] x = {534,466,418,369,353,362,415,526,667};
+            int[] y = {95 ,107,151,263,353,403,437,449,425};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("copy", points));
+            //2
+            points = new ArrayList<Points>();
+            x = new int[]{572,532,531,554,602};
+            y = new int[]{156,215,277,309,324};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("copy", points));
+            //3
+            points = new ArrayList<Points>();
+            x = new int[]{723,665,619,606,624,648,704};
+            y = new int[]{109,134,184,242,301,326,356};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("copy", points));
+            //4
+            points = new ArrayList<Points>();
+            x = new int[]{695,634,609,632,731};
+            y = new int[]{195,270,356,430,502};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("copy", points));
+            //5
+            points = new ArrayList<Points>();
+            x = new int[]{746,707,701,758};
+            y = new int[]{195,243,291,327};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("copy", points));
+
+            //paste gestures
+            points = new ArrayList<Points>();
+            x = new int[]{678,713,759,811};
+            y = new int[]{357,407,401,319};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("paste", points));
+
+            //2
+            points = new ArrayList<Points>();
+            x = new int[]{788,819,839,868,894};
+            y = new int[]{318,350,357,277,197};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("paste", points));
+            //3
+            points = new ArrayList<Points>();
+            x = new int[]{783,797,801,810,845};
+            y = new int[]{330,402,423,397,196};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("paste", points));
+            //4
+            points = new ArrayList<Points>();
+            x = new int[]{642,689,711,723,745,789,852,885,903,911,913,914};
+            y = new int[]{306,387,417,427,420,362,236,166,132,114,107,103};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("paste", points));
+            //5
+            points = new ArrayList<Points>();
+            x = new int[]{822,872,929,986};
+            y = new int[]{430,427,276,110};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("paste", points));
+
+            //cut gestures
+            points = new ArrayList<Points>();
+            x = new int[]{776,694,627,585,568};
+            y = new int[]{293,346,361,350,332};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("cut", points));
+
+            //2
+            points = new ArrayList<Points>();
+            x = new int[]{760,687,647,603,576,568,583,611,677,772,835,882};
+            y = new int[]{274,354,388,393,366,290,233,205,211,323,400,433};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("cut", points));
+            //3
+            points = new ArrayList<Points>();
+            x = new int[]{767,684,649,634,634,673,740,790,829,862};
+            y = new int[]{276,332,349,345,317,275,252,272,315,346};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("cut", points));
+            //4
+            points = new ArrayList<Points>();
+            x = new int[]{720,644,586,547,538};
+            y = new int[]{310,365,378,356,304};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("cut", points));
+            //5
+            points = new ArrayList<Points>();
+            x = new int[]{751,660,583,551,569};
+            y = new int[]{297,385,402,378,294};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("cut", points));
+        }
+    }
+
+
 
 }
