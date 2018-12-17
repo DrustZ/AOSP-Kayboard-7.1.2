@@ -122,6 +122,10 @@ public interface KeyboardActionListener {
 
     public void pasteText();
 
+    public void cutText();
+
+    public void undoEdit();
+
     public static final KeyboardActionListener EMPTY_LISTENER = new Adapter();
 
     public static class Adapter implements KeyboardActionListener {
@@ -169,5 +173,9 @@ public interface KeyboardActionListener {
         public void copyText() {}
         @Override
         public void pasteText() {}
+        @Override
+        public void cutText() {}
+        @Override
+        public void undoEdit() {}
     }
 }

@@ -646,7 +646,8 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
             if (clickCount == 2 && duration < DOUBLE_CLICK_TIME_DELTA){
                 clickCount = 0;
                 duration = 0;
-                sListener.copyText();
+                //double clicked, can be undo
+                sListener.undoEdit();
             } else if (duration >= DOUBLE_CLICK_TIME_DELTA || clickCount >= 2){
                 duration = 0;
                 clickCount = 0;

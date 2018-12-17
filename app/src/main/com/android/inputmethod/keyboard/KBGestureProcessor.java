@@ -497,6 +497,19 @@ public class KBGestureProcessor {
         if (eventime - gestureStartTime < 500){
             //begin to recognize editing gestures
             String res = mGestureRecognizer.recognize();
+            switch (res){
+                case "copy":
+                    mListener.copyText();
+                    break;
+                case "paste":
+                    mListener.pasteText();
+                    break;
+                case "cut":
+                    mListener.cutText();
+                    break;
+                default:
+                    return;
+            }
         }
     }
 
@@ -532,7 +545,6 @@ public class KBGestureProcessor {
 
         public String recognize(){
             if (mpoints.size() < 4) return "null";
-            
             mpoints = resample(mpoints, NUMPOINTS);
             scale(mpoints);
             translateTo(mpoints);
@@ -549,7 +561,7 @@ public class KBGestureProcessor {
             if (u == -1){
                 return "null";
             } else {
-//                Log.e("[Recog]", "recog: " + mGestures.get(u).name + " score: " + b);
+                Log.e("[Recog]", "recog: " + mGestures.get(u).name + " score: " + b);
                 return mGestures.get(u).name;
             }
         }
