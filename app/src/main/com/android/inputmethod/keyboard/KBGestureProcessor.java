@@ -40,7 +40,8 @@ public class KBGestureProcessor {
     int curDirection = 0; // -1 counter clock wise 1 clock wise
     float lastAngle = Infinite; //last moved angle, should be smaller than 360
     long lastAngle_time = 0;
-    int change_count = 0;
+    int change_count = 0; // count for reverse direction change
+    int initial_move_count = 0; // count for initial cursor moves
 
     float accumAngle = 0; //total angle moved
     float velocity = 0;
@@ -124,6 +125,7 @@ public class KBGestureProcessor {
 
         lastAngle = Infinite;
         change_count = 0;
+        initial_move_count = 0;
         accumAngle = 0;
         velocity = 0;
         pts.clear();
@@ -335,6 +337,9 @@ public class KBGestureProcessor {
         int threshold = 40;
         if (linedirection <= 2){
             threshold = 13;
+            if (initial_move_count < 5){
+                threshold = 30;
+            }
         }
         if (Math.abs(diff) > threshold){
             float velocity = 100*Math.abs(diff)/(lastpoint.time-lastAngle_time);
