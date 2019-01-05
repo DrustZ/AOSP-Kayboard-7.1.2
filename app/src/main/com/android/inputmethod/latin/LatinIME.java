@@ -48,6 +48,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.CompletionInfo;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodSubtype;
+import android.widget.Toast;
 
 import com.android.inputmethod.R;
 import com.android.inputmethod.accessibility.AccessibilityUtils;
@@ -1551,6 +1552,8 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     public void copyText() {
         if (!editMode) return;
         mInputLogic.mConnection.mIC.performContextMenuAction(android.R.id.copy);
+        Toast.makeText(getApplicationContext(), "Text Copied",
+                Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -1582,7 +1585,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
             if (wordlevel) {
                 mInputLogic.sendDownUpKeyEvents(keycode, KeyEvent.META_CTRL_ON);
             } else {
-                mInputLogic.sendDownUpKeyEvent(keycode);
+                mInputLogic.sendDownUpKeyEvents(keycode, 0);
             }
         } else {
             mInputLogic.sendDownUpKeyEvents(keycode, KeyEvent.META_SHIFT_ON);

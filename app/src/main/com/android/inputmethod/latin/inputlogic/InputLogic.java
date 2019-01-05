@@ -1089,7 +1089,6 @@ public final class InputLogic {
             }
 
             boolean hasUnlearnedWordBeingDeleted = false;
-
             // No cancelling of commit/double space/swap: we have a regular backspace.
             // We should backspace one char and restart suggestion if at the end of a word.
             if (mConnection.hasSelection()) {
@@ -1101,10 +1100,12 @@ public final class InputLogic {
                             Constants.EVENT_BACKSPACE);
                     hasUnlearnedWordBeingDeleted = true;
                 }
-                final int numCharsDeleted = mConnection.getExpectedSelectionEnd()
-                        - mConnection.getExpectedSelectionStart();
-                mConnection.setSelection(mConnection.getExpectedSelectionEnd(),
-                        mConnection.getExpectedSelectionEnd());
+                //end/start might be either is bigger according to the selection sequence
+                int largerRange = Math.max(mConnection.getExpectedSelectionEnd(), mConnection.getExpectedSelectionStart());
+                int smallerRange = Math.min(mConnection.getExpectedSelectionEnd(), mConnection.getExpectedSelectionStart());
+                final int numCharsDeleted = largerRange-smallerRange;
+                mConnection.setSelection(largerRange,
+                        largerRange);
                 mConnection.deleteTextBeforeCursor(numCharsDeleted);
                 StatsUtils.onBackspaceSelectedText(numCharsDeleted);
             } else {

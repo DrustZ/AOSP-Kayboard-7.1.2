@@ -546,6 +546,16 @@ public final class RichInputConnection implements PrivateCommandPerformer {
                     mExpectedSelEnd = mExpectedSelStart;
                 }
                 break;
+            //To avoid the selection range errorly update, we need to handle special cases for control keys
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+            case KeyEvent.KEYCODE_DPAD_UP:
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+            case KeyEvent.KEYCODE_SHIFT_LEFT:
+            case KeyEvent.KEYCODE_SHIFT_RIGHT:
+            case KeyEvent.KEYCODE_CTRL_LEFT:
+            case KeyEvent.KEYCODE_CTRL_RIGHT:
+                break;
             default:
                 final String text = StringUtils.newSingleCodePointString(keyEvent.getUnicodeChar());
                 mCommittedTextBeforeComposingText.append(text);
