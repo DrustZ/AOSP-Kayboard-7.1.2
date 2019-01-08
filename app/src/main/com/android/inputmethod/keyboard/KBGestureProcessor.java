@@ -487,7 +487,7 @@ public class KBGestureProcessor {
 //            } else {
 //                mListener.moveCursor(movedirection, false);
 //            }
-            if (velocity < 15){
+            if (velocity < 23){
                 mListener.kbVibrate();
             }
             for (int i = 0; i < movetime; i++) {
