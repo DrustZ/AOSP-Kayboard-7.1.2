@@ -39,7 +39,7 @@ public class KBGestureProcessor {
     int linedirection = 0; // no 0 left 1 right 2 up 3 down 4
     int curDirection = 0; // -1 counter clock wise 1 clock wise
     float lastAngle = Infinite; //last moved angle, should be smaller than 360
-    long lastAngle_time = 0;
+    Points lastAnglePoint = null;
     int change_count = 0; // count for reverse direction change
     int initial_move_count = 0; // count for initial cursor moves
 
@@ -124,6 +124,7 @@ public class KBGestureProcessor {
         centery = Infinite;
 
         lastAngle = Infinite;
+        lastAnglePoint = null;
         change_count = 0;
         initial_move_count = 0;
         accumAngle = 0;
@@ -331,7 +332,7 @@ public class KBGestureProcessor {
         if (lastAngle == Infinite){
 //            lastAngle = getAngle(pts.get(0).x, pts.get(0).y, (float)lastcenter.x, (float)lastcenter.y);
 //            lastAngle_time = pts.get(0).time;
-            lastAngle_time = lastpoint.time;
+            lastAnglePoint = lastpoint;
             lastAngle = a;
         }
         float diff = diffTwoAngles(a, lastAngle);
@@ -343,8 +344,8 @@ public class KBGestureProcessor {
 //                threshold = 35;
 //            }
         }
-        if (Math.abs(diff) > threshold){
-            float velocity = 100*Math.abs(diff)/(lastpoint.time-lastAngle_time);
+        if (Math.abs(diff) > threshold && lastAnglePoint.distanceTo(lastpoint) > 50){
+            float velocity = 100*Math.abs(diff)/(lastpoint.time-lastAnglePoint.time);
             velocity = vfilter.process(velocity);
             initial_move_count += 1;
             if (initial_move_count < 5) {
@@ -373,7 +374,7 @@ public class KBGestureProcessor {
             }
             accumAngle += diff;
             lastAngle = a;
-            lastAngle_time = lastpoint.time;
+            lastAnglePoint = lastpoint;
         }
 
         if (ellipseLocated <= 1 && Math.abs(accumAngle) > 180 && cPoints.size() > 5){
