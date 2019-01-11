@@ -45,7 +45,7 @@ public class KBGestureProcessor {
 
     float accumAngle = 0; //total angle moved
     float velocity = 0;
-    int pointsToDetectLine = 5;
+    int pointsToDetectLine = 4;
     int maxPoints = 10;
 
     ArrayList<org.opencv.core.Point> cPoints = new ArrayList<org.opencv.core.Point>();
@@ -204,6 +204,7 @@ public class KBGestureProcessor {
 //        Log.e("[Log]", "detectLine: r2 "+rs2 + " slope "+beta);
 
         if (Math.abs(rs1) < 0.6 && Math.abs(rs2) < 0.6){
+            Log.e("[Log]", "detectLine: no line "+rs1+" "+rs2 );
             return false;
         }
 
@@ -232,6 +233,7 @@ public class KBGestureProcessor {
 //            Log.e("[Log]", "line detected"+linedirection);
             return true;
         }
+        Log.e("[Log]", "faliled");
         return false;
     }
 
@@ -427,7 +429,7 @@ public class KBGestureProcessor {
         if (!ringmodeEntered && size >= pointsToDetectLine){
             boolean lineres = false;
             // we ignore slight movement
-            if (pts.get(pts.size()-1).distanceTo(pts.get(pts.size()-5)) < 15) {
+            if (pts.get(pts.size()-1).distanceTo(pts.get(pts.size()-4)) < 15) {
                 return;
             }
             if (size == pointsToDetectLine){
@@ -573,7 +575,7 @@ public class KBGestureProcessor {
             if (u == -1){
                 return "null";
             } else {
-                Log.e("[Recog]", "recog: " + mGestures.get(u).name + " score: " + b);
+//                Log.e("[Recog]", "recog: " + mGestures.get(u).name + " score: " + b);
                 return mGestures.get(u).name;
             }
         }
