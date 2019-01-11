@@ -338,10 +338,10 @@ public class KBGestureProcessor {
 
         int threshold = 40;
         if (linedirection <= 2){
-            threshold = 25;
-            if (initial_move_count < 5){
-                threshold = 35;
-            }
+            threshold = 30;
+//            if (initial_move_count < 5){
+//                threshold = 35;
+//            }
         }
         if (Math.abs(diff) > threshold){
             float velocity = 100*Math.abs(diff)/(lastpoint.time-lastAngle_time);
@@ -484,8 +484,8 @@ public class KBGestureProcessor {
             }
             //CD-gain
             int movetime = 1;
-            if (curDirection <= 2 && velocity > 25){
-                movetime = (int)Math.ceil(5*(1-Math.exp(0.04*(25-velocity))));
+            if (curDirection <= 2 && velocity > 35){
+                movetime = (int)Math.ceil(5*(1-Math.exp(0.04*(35-velocity))));
             }
             // word-level
 //            if (curDirection <= 2 && velocity > 20){
