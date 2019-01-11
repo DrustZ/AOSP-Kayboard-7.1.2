@@ -338,9 +338,9 @@ public class KBGestureProcessor {
 
         int threshold = 40;
         if (linedirection <= 2){
-            threshold = 20;
+            threshold = 25;
             if (initial_move_count < 5){
-                threshold = 30;
+                threshold = 35;
             }
         }
         if (Math.abs(diff) > threshold){
@@ -484,8 +484,8 @@ public class KBGestureProcessor {
             }
             //CD-gain
             int movetime = 1;
-            if (curDirection <= 2 && velocity > 20){
-                movetime = (int)Math.ceil(5*(1-Math.exp(0.03*(20-velocity))));
+            if (curDirection <= 2 && velocity > 25){
+                movetime = (int)Math.ceil(5*(1-Math.exp(0.04*(25-velocity))));
             }
             // word-level
 //            if (curDirection <= 2 && velocity > 20){
@@ -493,7 +493,7 @@ public class KBGestureProcessor {
 //            } else {
 //                mListener.moveCursor(movedirection, false);
 //            }
-            if (velocity < 20){
+            if (velocity < 25){
                 mListener.kbVibrate();
             }
             for (int i = 0; i < movetime; i++) {
