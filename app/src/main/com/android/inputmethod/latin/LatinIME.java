@@ -1570,6 +1570,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
     @Override
     public void undoEdit() {
+        Log.e(TAG, "undo");
         if (!editMode) return;
         mInputLogic.mConnection.mIC.performContextMenuAction(android.R.id.undo);
     }

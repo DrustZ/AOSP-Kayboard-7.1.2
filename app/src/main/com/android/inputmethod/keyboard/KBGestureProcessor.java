@@ -329,14 +329,16 @@ public class KBGestureProcessor {
 
         float a = getAngle(lastpoint.x, lastpoint.y, (float)lastcenter.x, (float)lastcenter.y);
         if (lastAngle == Infinite){
-            lastAngle = getAngle(pts.get(0).x, pts.get(0).y, (float)lastcenter.x, (float)lastcenter.y);
-            lastAngle_time = pts.get(0).time;
+//            lastAngle = getAngle(pts.get(0).x, pts.get(0).y, (float)lastcenter.x, (float)lastcenter.y);
+//            lastAngle_time = pts.get(0).time;
+            lastAngle_time = lastpoint.time;
+            lastAngle = a;
         }
         float diff = diffTwoAngles(a, lastAngle);
 
         int threshold = 40;
         if (linedirection <= 2){
-            threshold = 13;
+            threshold = 20;
             if (initial_move_count < 5){
                 threshold = 30;
             }
@@ -344,11 +346,15 @@ public class KBGestureProcessor {
         if (Math.abs(diff) > threshold){
             float velocity = 100*Math.abs(diff)/(lastpoint.time-lastAngle_time);
             velocity = vfilter.process(velocity);
+            initial_move_count += 1;
+            if (initial_move_count < 5) {
+                velocity = 0;
+            }
             if ((diff < 0 && curDirection == 1) || (diff > 0 && curDirection == -1)){
                 if (Math.abs(diff) < 20+threshold){
                 change_count += 1;
 //                Log.e("[Diff]", "move diff"+diff+ " angle now "+a);
-                if (change_count > 2){
+                if (change_count > 1){
                     //lets change direction
                     change_count = 0;
                     curDirection = -curDirection;
@@ -361,9 +367,9 @@ public class KBGestureProcessor {
             } else {
                 change_count = 0;
                 //moving in current direction
-                moveCursor(diff, velocity);
                 if (diff > 0) curDirection = 1;
                 else curDirection = -1;
+                moveCursor(diff, velocity);
             }
             accumAngle += diff;
             lastAngle = a;
@@ -479,7 +485,7 @@ public class KBGestureProcessor {
             //CD-gain
             int movetime = 1;
             if (curDirection <= 2 && velocity > 20){
-                movetime = (int)Math.ceil(5*(1-Math.exp(0.07*(20-velocity))));
+                movetime = (int)Math.ceil(5*(1-Math.exp(0.03*(20-velocity))));
             }
             // word-level
 //            if (curDirection <= 2 && velocity > 20){
@@ -487,7 +493,7 @@ public class KBGestureProcessor {
 //            } else {
 //                mListener.moveCursor(movedirection, false);
 //            }
-            if (velocity < 23){
+            if (velocity < 20){
                 mListener.kbVibrate();
             }
             for (int i = 0; i < movetime; i++) {
