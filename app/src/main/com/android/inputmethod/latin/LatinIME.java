@@ -1551,9 +1551,11 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     @Override
     public void copyText() {
         if (!editMode) return;
-        mInputLogic.mConnection.mIC.performContextMenuAction(android.R.id.copy);
-        Toast.makeText(getApplicationContext(), "Text Copied",
-                Toast.LENGTH_SHORT).show();
+        if (mInputLogic.mConnection.hasSelection()) {
+            mInputLogic.mConnection.mIC.performContextMenuAction(android.R.id.copy);
+            Toast.makeText(getApplicationContext(), "Text Copied",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

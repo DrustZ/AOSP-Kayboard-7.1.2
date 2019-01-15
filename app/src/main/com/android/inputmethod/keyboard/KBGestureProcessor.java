@@ -204,7 +204,7 @@ public class KBGestureProcessor {
 //        Log.e("[Log]", "detectLine: r2 "+rs2 + " slope "+beta);
 
         if (Math.abs(rs1) < 0.6 && Math.abs(rs2) < 0.6){
-            Log.e("[Log]", "detectLine: no line "+rs1+" "+rs2 );
+//            Log.e("[Log]", "detectLine: no line "+rs1+" "+rs2 );
             return false;
         }
 
@@ -233,7 +233,7 @@ public class KBGestureProcessor {
 //            Log.e("[Log]", "line detected"+linedirection);
             return true;
         }
-        Log.e("[Log]", "faliled");
+//        Log.e("[Log]", "detect line faliled");
         return false;
     }
 
@@ -479,10 +479,10 @@ public class KBGestureProcessor {
                     movedirection = 1;
                 }
             } else {
-                if (curDirection == 1){ // clockwise: up
-                    movedirection = 3;
-                } else {
+                if (curDirection == 1){ // clockwise: down
                     movedirection = 4;
+                } else {
+                    movedirection = 3;
                 }
             }
             //CD-gain
@@ -566,7 +566,7 @@ public class KBGestureProcessor {
             int u = -1;
             for (int i = 0; i < mGestures.size(); ++i){
                 float d = greedyCLoudMatch(mpoints, mGestures.get(i));
-                if (d < b){
+                if (d <= b){
                     b = d;
                     u = i;
                 }
@@ -759,7 +759,7 @@ public class KBGestureProcessor {
             //3
             points = new ArrayList<Points>();
             x = new int[]{783,797,801,810,845};
-            y = new int[]{330,402,423,397,196};
+            y = new int[]{196,397,423,402,330};
             for (int i = 0; i < x.length; ++i){
                 points.add(new Points(x[i], y[i], 0));
             }

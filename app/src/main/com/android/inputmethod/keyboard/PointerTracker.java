@@ -594,9 +594,10 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
     }
 
 
-    private static final long DOUBLE_CLICK_TIME_DELTA = 300;
+    private static final long DOUBLE_CLICK_TIME_DELTA = 350;
     long duration = 0;
-    long starttime = 0;
+    long doubletap_start_time = 0;
+    long tap_down_time = 0;
     int clickCount = 0;
 
     public void processMotionEvent(final MotionEvent me, final KeyDetector keyDetector) {
@@ -625,33 +626,39 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         final int x = (int)me.getX(index);
         final int y = (int)me.getY(index);
         switch (action) {
-        case MotionEvent.ACTION_DOWN:
         case MotionEvent.ACTION_POINTER_DOWN:
-            if (x < 40){
-//                Log.e(TAG, "on swipe left edge");
+            clickCount += 1;
+            tap_down_time = me.getEventTime();
+            if (clickCount == 1) {
+                doubletap_start_time = me.getEventTime();
+            }
+        case MotionEvent.ACTION_DOWN:
+           if (x < 40 && motionEdge != true){
                 motionEdge = true;
+                clickCount = 0;
                 //put a shadow on kb view
                 sGestureProcessor.KBView.setEditmode(true);
                 sListener.enableEditing();
             } else {
                 onDownEvent(x, y, eventTime, keyDetector);
             }
-            clickCount += 1;
-            starttime = me.getEventTime();
             sGestureProcessor.reset();
             break;
-        case MotionEvent.ACTION_UP:
         case MotionEvent.ACTION_POINTER_UP:
-            duration += me.getEventTime() - starttime;
+            duration = me.getEventTime() - doubletap_start_time;
             if (clickCount == 2 && duration < DOUBLE_CLICK_TIME_DELTA){
                 clickCount = 0;
                 duration = 0;
                 //double clicked, can be undo
                 sListener.undoEdit();
-            } else if (duration >= DOUBLE_CLICK_TIME_DELTA || clickCount >= 2){
+            } else if (me.getEventTime() - tap_down_time < DOUBLE_CLICK_TIME_DELTA/2 && clickCount == 2){
+                doubletap_start_time = tap_down_time;
+                clickCount = 1;
+            } else if (duration >= DOUBLE_CLICK_TIME_DELTA){
                 duration = 0;
                 clickCount = 0;
             }
+        case MotionEvent.ACTION_UP:
             onUpEvent(x, y, eventTime);
             if (!motionEdge){
                 sGestureProcessor.fingerLifted(me.getEventTime());
@@ -855,7 +862,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
             return;
         }
         startLongPressTimer(key);
-        if (mTouchDownKey.isSwitch()) {
+        if (mTouchDownKey != null && mTouchDownKey.isSwitch()) {
             return;
         }
         setPressedKeyGraphics(key, eventTime);
@@ -1070,9 +1077,9 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         }
 
         //if switch and slide, we ignore
-        if (!(isInSlidingKeyInput && mTouchDownKey.isSwitch())) {
+        if (!(isInSlidingKeyInput && mTouchDownKey != null && mTouchDownKey.isSwitch())) {
             detectAndSendKey(currentKey, mKeyX, mKeyY, eventTime);
-        } else {
+        } else if (mTouchDownKey != null){
             //else we send the signal
             // only if the key is different
             if (!currentKey.isSwitch()){
