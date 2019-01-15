@@ -400,7 +400,7 @@ public class KBGestureProcessor {
         MatOfPoint2f matpts = new MatOfPoint2f();
         matpts.fromList(cPoints);
         RotatedRect elipse = Imgproc.fitEllipse(matpts);
-        if (elipse.center.x < 50 || elipse.center.y < 50 || elipse.center.x > 950 || elipse.center.y > 550)
+        if (elipse.center.x < 50 || elipse.center.y < 50 || elipse.center.y > 550)
             return false;
         lastcenter = elipse.center;
         KBView.updateCenter((int)lastcenter.x, (int)lastcenter.y, 0xFF00FFFF);

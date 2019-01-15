@@ -627,8 +627,8 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         switch (action) {
         case MotionEvent.ACTION_DOWN:
         case MotionEvent.ACTION_POINTER_DOWN:
-            if (x < 20){
-                Log.e(TAG, "on swipe left edge");
+            if (x < 40){
+//                Log.e(TAG, "on swipe left edge");
                 motionEdge = true;
                 //put a shadow on kb view
                 sGestureProcessor.KBView.setEditmode(true);
