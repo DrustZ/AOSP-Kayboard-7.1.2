@@ -1,0 +1,15 @@
+language: android
+
+sudo: false
+
+android:
+  components:
+  - tools
+  - build-tools-27.0.3
+  - android-27
+  - extra-android-m2repository
+  - extra-android-support
+
+script:
+  - ./gradlew clean
+  - ./gradlew assembleRelease

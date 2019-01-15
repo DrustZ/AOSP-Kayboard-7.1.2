@@ -17,6 +17,10 @@ android {
 //        }
     }
 
+    lintOptions{
+        disable 'MissingTranslation'
+    }
+
     sourceSets {
         main {
             java.srcDirs = ['src/main', '../java-overridable/src']
