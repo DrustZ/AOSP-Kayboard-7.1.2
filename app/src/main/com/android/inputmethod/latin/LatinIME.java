@@ -1567,7 +1567,8 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     @Override
     public void cutText() {
         if (!editMode) return;
-        mInputLogic.mConnection.mIC.performContextMenuAction(android.R.id.cut);
+        if (mInputLogic.mConnection.hasSelection())
+            mInputLogic.mConnection.mIC.performContextMenuAction(android.R.id.cut);
     }
 
     @Override
