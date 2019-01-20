@@ -19,6 +19,7 @@ package com.android.inputmethod.keyboard;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.SystemClock;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -158,6 +159,8 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
 
     //if edge from left is entered
     private boolean motionEdge = false;
+    //if edge from right is entered (single-handed)
+    private boolean motionEdgeRight = false;
 
     private final BatchInputArbiter mBatchInputArbiter;
     private final GestureStrokeDrawingPoints mGestureStrokeDrawingPoints;
@@ -625,6 +628,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         final int index = me.getActionIndex();
         final int x = (int)me.getX(index);
         final int y = (int)me.getY(index);
+        final int width = Resources.getSystem().getDisplayMetrics().widthPixels;
         switch (action) {
         case MotionEvent.ACTION_POINTER_DOWN:
             clickCount += 1;
@@ -633,14 +637,21 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
                 doubletap_start_time = me.getEventTime();
             }
         case MotionEvent.ACTION_DOWN:
-           if (x < 40 && motionEdge != true){
+           if (x < 40 && !motionEdge && !motionEdgeRight){
                 motionEdge = true;
                 clickCount = 0;
                 //put a shadow on kb view
                 sGestureProcessor.KBView.setEditmode(true);
                 sListener.enableEditing();
+            } else if (x > width - 40 && !motionEdgeRight && !motionEdge){
+               clickCount = 0;
+               motionEdgeRight = true;
+               //put a shadow on kb view
+               sGestureProcessor.KBView.setEditmode(true);
+               sListener.enableEditing();
+               onDownEvent(x, y, eventTime, keyDetector);
             } else {
-                onDownEvent(x, y, eventTime, keyDetector);
+               onDownEvent(x, y, eventTime, keyDetector);
             }
             sGestureProcessor.reset();
             break;
@@ -675,8 +686,9 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
     }
 
     void cancelEditingGestures(){
-        if (motionEdge){
+        if (motionEdge || motionEdgeRight){
             motionEdge = false;
+            motionEdgeRight = false;
             sGestureProcessor.KBView.setEditmode(false);
             sListener.disableEditing();
         } else {

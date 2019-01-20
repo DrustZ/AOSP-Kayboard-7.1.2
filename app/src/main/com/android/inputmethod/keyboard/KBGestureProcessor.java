@@ -743,13 +743,13 @@ public class KBGestureProcessor {
             }
             mGestures.add(new PointCloud("copy", points));
             //5
-//            points = new ArrayList<Points>();
-//            x = new int[]{};
-//            y = new int[]{};
-//            for (int i = 0; i < x.length; ++i){
-//                points.add(new Points(x[i], y[i], 0));
-//            }
-//            mGestures.add(new PointCloud("copy", points));
+            points = new ArrayList<Points>();
+            x = new int[]{795, 777, 751, 706, 683, 662, 624, 605, 592, 578, 565, 542, 530, 524, 515, 512, 508, 504, 501, 499, 501, 504, 504, 509, 517, 518, 534, 542, 561, 569, 596, 643, 698, 759, 773, 818, 865, 888, 900, 925, 929, 941, 953, 959, 962, 968, 971, 973, 977, 977, 980, 982, 983, 983, 984, 984, 984, 984, 984, 984};
+            y = new int[]{214, 220, 234, 260, 273, 288, 316, 330, 343, 354, 371, 401, 416, 427, 440, 449, 455, 468, 487, 496, 502, 514, 516, 523, 530, 531, 538, 542, 544, 545, 547, 545, 539, 531, 529, 521, 513, 509, 507, 502, 501, 497, 492, 489, 488, 484, 482, 481, 479, 478, 477, 475, 474, 474, 473, 472, 472, 471, 471, 470};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("copy", points));
             //user-defined
 //            points = new ArrayList<Points>();
 //            x = new int[]{};
@@ -793,13 +793,13 @@ public class KBGestureProcessor {
             }
             mGestures.add(new PointCloud("paste", points));
             //5
-//            points = new ArrayList<Points>();
-//            x = new int[]{822,872,929,986};
-//            y = new int[]{430,427,276,110};
-//            for (int i = 0; i < x.length; ++i){
-//                points.add(new Points(x[i], y[i], 0));
-//            }
-//            mGestures.add(new PointCloud("paste", points));
+            points = new ArrayList<Points>();
+            x = new int[]{640, 644, 647, 650, 653, 656, 658, 660, 662, 664, 665, 666, 668, 669, 671, 672, 673, 674, 675, 677, 680, 682, 688, 696, 700, 709, 730, 753, 761, 771, 787, 795, 806, 815, 824, 849, 861, 875, 885, 900, 926, 935, 950, 969, 974};
+            y = new int[]{272, 288, 301, 317, 326, 338, 344, 352, 359, 366, 372, 376, 381, 385, 388, 390, 392, 394, 394, 394, 395, 395, 393, 387, 384, 374, 344, 301, 284, 266, 243, 231, 219, 207, 201, 179, 168, 159, 151, 140, 121, 113, 105, 92, 88};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("paste", points));
             //user-defined
 //            points = new ArrayList<Points>();
 //            x = new int[]{};
@@ -844,13 +844,13 @@ public class KBGestureProcessor {
             }
             mGestures.add(new PointCloud("cut", points));
             //5
-//            points = new ArrayList<Points>();
-//            x = new int[]{};
-//            y = new int[]{};
-//            for (int i = 0; i < x.length; ++i){
-//                points.add(new Points(x[i], y[i], 0));
-//            }
-//            mGestures.add(new PointCloud("cut", points));
+            points = new ArrayList<Points>();
+            x = new int[]{852, 838, 821, 802, 795, 782, 767, 751, 742, 729, 718, 706, 696, 685, 676, 658, 649, 640, 621, 611, 604, 596, 584, 567, 555, 549, 547, 539};
+            y = new int[]{228, 241, 261, 279, 288, 301, 313, 326, 334, 344, 355, 364, 373, 382, 389, 401, 407, 411, 418, 421, 420, 420, 415, 408, 399, 394, 391, 379};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("cut", points));
             //user-defined
 //            points = new ArrayList<Points>();
 //            x = new int[]{};
