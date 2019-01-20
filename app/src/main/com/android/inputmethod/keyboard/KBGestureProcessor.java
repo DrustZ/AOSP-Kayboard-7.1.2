@@ -559,6 +559,12 @@ public class KBGestureProcessor {
 
         public String recognize(){
             if (mpoints.size() < 4) return "null";
+            // user-dependent sample gathering
+            if (true) {
+                for (Points p : mpoints) {
+                    Log.e("[sample]", p.x+" "+p.y);
+                }
+            }
             mpoints = resample(mpoints, NUMPOINTS);
             scale(mpoints);
             translateTo(mpoints);
@@ -575,7 +581,7 @@ public class KBGestureProcessor {
             if (u == -1){
                 return "null";
             } else {
-//                Log.e("[Recog]", "recog: " + mGestures.get(u).name + " score: " + b);
+                Log.e("[Recog]", "recog: " + mGestures.get(u).name + " score: " + b);
                 return mGestures.get(u).name;
             }
         }
@@ -738,6 +744,14 @@ public class KBGestureProcessor {
                 points.add(new Points(x[i], y[i], 0));
             }
             mGestures.add(new PointCloud("copy", points));
+            //user-defined
+//            points = new ArrayList<Points>();
+//            x = new int[]{};
+//            y = new int[]{};
+//            for (int i = 0; i < x.length; ++i){
+//                points.add(new Points(x[i], y[i], 0));
+//            }
+//            mGestures.add(new PointCloud("copy", points));
 
             //paste gestures
             points = new ArrayList<Points>();
@@ -780,6 +794,15 @@ public class KBGestureProcessor {
                 points.add(new Points(x[i], y[i], 0));
             }
             mGestures.add(new PointCloud("paste", points));
+            //user-defined
+//            points = new ArrayList<Points>();
+//            x = new int[]{};
+//            y = new int[]{};
+//            for (int i = 0; i < x.length; ++i){
+//                points.add(new Points(x[i], y[i], 0));
+//            }
+//            mGestures.add(new PointCloud("paste", points));
+
 
             //cut gestures
             points = new ArrayList<Points>();
@@ -822,6 +845,14 @@ public class KBGestureProcessor {
                 points.add(new Points(x[i], y[i], 0));
             }
             mGestures.add(new PointCloud("cut", points));
+            //user-defined
+//            points = new ArrayList<Points>();
+//            x = new int[]{};
+//            y = new int[]{};
+//            for (int i = 0; i < x.length; ++i){
+//                points.add(new Points(x[i], y[i], 0));
+//            }
+//            mGestures.add(new PointCloud("cut", points));
         }
     }
 
