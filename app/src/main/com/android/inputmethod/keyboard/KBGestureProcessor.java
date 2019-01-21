@@ -1,5 +1,6 @@
 package com.android.inputmethod.keyboard;
 
+import android.content.res.Resources;
 import android.graphics.Point;
 import android.util.Log;
 import android.view.View;
@@ -47,6 +48,7 @@ public class KBGestureProcessor {
     float velocity = 0;
     int pointsToDetectLine = 4;
     int maxPoints = 10;
+    final int width = Resources.getSystem().getDisplayMetrics().widthPixels;
 
     ArrayList<org.opencv.core.Point> cPoints = new ArrayList<org.opencv.core.Point>();
     org.opencv.core.Point lastcenter = null; //last circle center
@@ -270,7 +272,7 @@ public class KBGestureProcessor {
 
         centerx = (float)(centerx*0.5 + x3*0.5);
         centery = (float)(centery*0.5 + y3*0.5);
-        if (r > 600 || centerx < 50 || centery < 50 || centerx > 950 || centery > 550){ //too large
+        if (r > 600 || centerx < 50 || centery < 50){ //too large
             centerx = Infinite;
             centery = Infinite;
             return false;
