@@ -629,6 +629,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         final int x = (int)me.getX(index);
         final int y = (int)me.getY(index);
         final int width = Resources.getSystem().getDisplayMetrics().widthPixels;
+        Log.e(TAG, "processMotionEvent: widt"+width );
         switch (action) {
         case MotionEvent.ACTION_POINTER_DOWN:
             clickCount += 1;
@@ -637,13 +638,13 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
                 doubletap_start_time = me.getEventTime();
             }
         case MotionEvent.ACTION_DOWN:
-           if (x < 40 && !motionEdge && !motionEdgeRight){
+           if (x < 30 && !motionEdge && !motionEdgeRight){
                 motionEdge = true;
                 clickCount = 0;
                 //put a shadow on kb view
                 sGestureProcessor.KBView.setEditmode(true);
                 sListener.enableEditing();
-            } else if (x > width - 40 && !motionEdgeRight && !motionEdge){
+            } else if (x > width - 30 && !motionEdgeRight && !motionEdge){
                clickCount = 0;
                motionEdgeRight = true;
                //put a shadow on kb view
