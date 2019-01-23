@@ -1585,15 +1585,10 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         if (direction == 2) keycode = KeyEvent.KEYCODE_DPAD_RIGHT;
         if (direction == 3) keycode = KeyEvent.KEYCODE_DPAD_UP;
         if (direction == 4) keycode = KeyEvent.KEYCODE_DPAD_DOWN;
-        if (!editMode) {
-            if (wordlevel) {
-                mInputLogic.sendDownUpKeyEvents(keycode, KeyEvent.META_CTRL_ON);
-            } else {
-                mInputLogic.sendDownUpKeyEvents(keycode, 0);
-            }
-        } else {
-            mInputLogic.sendDownUpKeyEvents(keycode, KeyEvent.META_SHIFT_ON);
-        }
+        int keyevent = 0;
+        if (editMode)   keyevent |= KeyEvent.META_SHIFT_LEFT_ON;
+        if (wordlevel)  keyevent |= KeyEvent.META_CTRL_LEFT_ON;
+        mInputLogic.sendDownUpKeyEvents(keycode, keyevent);
     }
 
     public boolean hasSuggestionStripView() {

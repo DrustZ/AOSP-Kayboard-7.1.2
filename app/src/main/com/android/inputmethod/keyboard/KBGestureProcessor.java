@@ -351,16 +351,16 @@ public class KBGestureProcessor {
             }
             if ((diff < 0 && curDirection == 1) || (diff > 0 && curDirection == -1)){
                 if (Math.abs(diff) < 20+threshold){
-                change_count += 1;
+                    change_count += 1;
 //                Log.e("[Diff]", "move diff"+diff+ " angle now "+a);
-                if (change_count > 1){
-                    //lets change direction
-                    change_count = 0;
-                    curDirection = -curDirection;
-                    //move opposite
+                    if (change_count > 1){
+                        //lets change direction
+                        change_count = 0;
+                        curDirection = -curDirection;
+                        //move opposite
 //                    Log.e("[Log]", "Direction change!" );
-                    moveCursor(diff, velocity);
-                    cPoints.clear();
+                        moveCursor(diff, velocity);
+                        cPoints.clear();
                     }
                 } else return;
             } else {
@@ -483,9 +483,9 @@ public class KBGestureProcessor {
 
             if (curDirection == 1 ){
                 // clockwise: right
-                    movedirection = 2;
+                movedirection = 2;
             } else {
-                    movedirection = 1;
+                movedirection = 1;
             }
             //CD-gain
             int movetime = 1;
@@ -522,6 +522,22 @@ public class KBGestureProcessor {
                     break;
                 case "cut":
                     mListener.cutText();
+                    break;
+                case "vertical":
+                    float ydiff = pts.get(0).y-pts.get(pts.size()-1).y;
+                    if (ydiff > 60){
+                        mListener.moveCursor(3, false);
+                    } else if (ydiff < -60){
+                        mListener.moveCursor(4, false);
+                    }
+                    break;
+                case "horizontal":
+                    float xdiff = pts.get(0).x-pts.get(pts.size()-1).x;
+                    if (xdiff > 60){
+                        mListener.moveCursor(1, true);
+                    } else if (xdiff < -60){
+                        mListener.moveCursor(2, true);
+                    }
                     break;
                 default:
                     return;
@@ -860,6 +876,93 @@ public class KBGestureProcessor {
 //                points.add(new Points(x[i], y[i], 0));
 //            }
 //            mGestures.add(new PointCloud("cut", points));
+
+
+            //vertical gestures
+            points = new ArrayList<Points>();
+            x = new int[]{1018, 1018, 1017, 1017, 1019, 1022, 1023, 1025, 1024, 1024, 1024, 1025, 1026, 1028, 1028, 1029, 1029, 1028, 1028, 1028, 1025, 1024};
+            y = new int[]{427, 457, 483, 488, 516, 536, 541, 562, 576, 581, 594, 599, 602, 606, 607, 608, 605, 598, 595, 577, 564, 559};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("vertical", points));
+
+            //2
+            points = new ArrayList<Points>();
+            x = new int[]{992, 992, 992, 993, 996, 996, 1003, 1011, 1012, 1022, 1031, 1032, 1039, 1048, 1049, 1058, 1069, 1069, 1080, 1090, 1090, 1098, 1097, 1096};
+            y = new int[]{439, 403, 392, 363, 322, 312, 277, 238, 230, 200, 174, 169, 153, 136, 133, 112, 89, 86, 67, 55, 54, 49, 49, 49};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("vertical", points));
+            //3
+            points = new ArrayList<Points>();
+            x = new int[]{1020, 1021, 1021, 1021, 1022, 1022, 1023, 1023, 1023, 1025, 1026, 1027, 1028, 1028, 1028, 1027, 1026, 1026, 1025, 1025, 1026, 1022};
+            y = new int[]{437, 474, 475, 505, 533, 533, 557, 578, 580, 599, 611, 613, 622, 630, 632, 643, 651, 653, 658, 655, 655, 646};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("vertical", points));
+            //4
+            points = new ArrayList<Points>();
+            x = new int[]{1000, 983, 973, 972, 971, 975, 977, 986, 999, 1002, 1011};
+            y = new int[]{352, 280, 223, 212, 159, 130, 124, 97, 72, 68, 55};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("vertical", points));
+
+            //user-defined
+//            points = new ArrayList<Points>();
+//            x = new int[]{};
+//            y = new int[]{};
+//            for (int i = 0; i < x.length; ++i){
+//                points.add(new Points(x[i], y[i], 0));
+//            }
+//            mGestures.add(new PointCloud("vertical", points));
+
+            //horizontal gestures
+            points = new ArrayList<Points>();
+            x = new int[]{975, 944, 912, 912, 880, 849, 849};
+            y = new int[]{414, 422, 429, 430, 438, 443, 444};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("horizontal", points));
+
+            //2
+            points = new ArrayList<Points>();
+            x = new int[]{960, 1034, 1078, 1102, 1157, 1179, 1193, 1214, 1221, 1226, 1234, 1239, 1243};
+            y = new int[]{338, 320, 308, 302, 288, 282, 279, 275, 273, 272, 271, 271, 271};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("horizontal", points));
+            //3
+            points = new ArrayList<Points>();
+            x = new int[]{1064, 1129, 1169, 1175, 1204, 1221, 1224, 1244};
+            y = new int[]{392, 389, 387, 387, 386, 381, 381, 377};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("horizontal", points));
+            //4
+            points = new ArrayList<Points>();
+            x = new int[]{988, 966, 940, 938, 897, 845, 838, 775, 716, 706, 649};
+            y = new int[]{270, 270, 270, 270, 272, 275, 276, 283, 292, 294, 304};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("horizontal", points));
+
+            //user-defined
+//            points = new ArrayList<Points>();
+//            x = new int[]{};
+//            y = new int[]{};
+//            for (int i = 0; i < x.length; ++i){
+//                points.add(new Points(x[i], y[i], 0));
+//            }
+//            mGestures.add(new PointCloud("horizontal", points));
         }
     }
 
