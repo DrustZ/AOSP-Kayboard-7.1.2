@@ -638,13 +638,13 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
                 doubletap_start_time = me.getEventTime();
             }
         case MotionEvent.ACTION_DOWN:
-           if (x < 30 && !motionEdge && !motionEdgeRight){
+           if (x < 20 && !motionEdge && !motionEdgeRight){
                 motionEdge = true;
                 clickCount = 0;
                 //put a shadow on kb view
                 sGestureProcessor.KBView.setEditmode(true);
                 sListener.enableEditing();
-            } else if (x > width - 30 && !motionEdgeRight && !motionEdge){
+            } else if (x > width - 20 && !motionEdgeRight && !motionEdge){
                clickCount = 0;
                motionEdgeRight = true;
                //put a shadow on kb view
