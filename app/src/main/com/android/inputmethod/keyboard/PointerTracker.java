@@ -629,7 +629,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         final int x = (int)me.getX(index);
         final int y = (int)me.getY(index);
         final int width = Resources.getSystem().getDisplayMetrics().widthPixels;
-        Log.e(TAG, "processMotionEvent: widt"+width );
+//        Log.e(TAG, "processMotionEvent: widt"+width );
         switch (action) {
         case MotionEvent.ACTION_POINTER_DOWN:
             clickCount += 1;

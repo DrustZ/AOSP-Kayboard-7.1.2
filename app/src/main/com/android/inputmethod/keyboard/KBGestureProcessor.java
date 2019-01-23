@@ -47,7 +47,7 @@ public class KBGestureProcessor {
     float accumAngle = 0; //total angle moved
     float velocity = 0;
     int pointsToDetectLine = 4;
-    int maxPoints = 10;
+    int maxPoints = 15;
     final int width = Resources.getSystem().getDisplayMetrics().widthPixels;
 
     ArrayList<org.opencv.core.Point> cPoints = new ArrayList<org.opencv.core.Point>();
@@ -265,13 +265,13 @@ public class KBGestureProcessor {
             centery = Infinite;
             return false;
         }
-
-        centerx = ((x1*x1+y1*y1)*(y2-y3) + (x2*x2+y2*y2)*(y3-y1) + (x3*x2+y3*y2)*(y1-y2))/d;
-        centery = ((x1*x1+y1*y1)*(x3-x2) + (x2*x2+y2*y2)*(x1-x3) + (x3*x2+y3*y2)*(x2-x1))/d;
+        centerx = ((x1*x1+y1*y1)*(y2-y3) + (x2*x2+y2*y2)*(y3-y1) + (x3*x3+y3*y3)*(y1-y2))/d;
+        centery = ((x1*x1+y1*y1)*(x3-x2) + (x2*x2+y2*y2)*(x1-x3) + (x3*x3+y3*y3)*(x2-x1))/d;
         float r = (float)Math.sqrt((centerx-x1)*(centerx-x1)+(centery-y1)*(centery-y1));
-
-        centerx = (float)(centerx*0.5 + x3*0.5);
-        centery = (float)(centery*0.5 + y3*0.5);
+//        Log.e("log", "x : "+centerx+" y: "+centery );
+        centerx = (float)(centerx*0.9 + x3*0.1);
+        centery = (float)(centery*0.9 + y3*0.1);
+//        Log.e("log", "after x : "+centerx+" y: "+centery );
         if (r > 600 || centerx < 50 || centery < 50){ //too large
             centerx = Infinite;
             centery = Infinite;
@@ -293,7 +293,11 @@ public class KBGestureProcessor {
     //process points in ring
     private void processRingPoints(){
         Points lastpoint = pts.get(maxPoints-1);
-        boolean hasCenter = getCircleCenter(pts.get(0), pts.get(maxPoints/2), lastpoint);
+        boolean hasCenter = false;
+        if (lastcenter == null) {
+//            Log.e("[Log]", "processRingPoints: ["+pts.get(0).x + "," + pts.get(0).y + "],["+pts.get(maxPoints/2).x + "," + pts.get(maxPoints/2).y + "],["+lastpoint.x + "," + lastpoint.y +"]");
+            hasCenter = getCircleCenter(pts.get(0), pts.get(maxPoints/2), lastpoint);
+        }
         if (!hasCenter){
             if (lastcenter == null) {
                 xfilter.clear();
@@ -315,16 +319,12 @@ public class KBGestureProcessor {
                 backupCenter = newcenter;
             }
 
-            if (lastcenter == null && diff > 20){
+            if (lastcenter == null){
                 lastcenter = newcenter;
                 backupCenter = null;
                 KBView.updateCenter((int)lastcenter.x, (int)lastcenter.y, 0xFF00FF00);
             }
 
-            if (lastcenter == null && backupCenter == null) {
-                vfilter.clear();
-                return;
-            }
             else if (lastcenter == null && backupCenter != null){
                 lastcenter = backupCenter;
                 backupCenter = null;
@@ -341,13 +341,7 @@ public class KBGestureProcessor {
         }
         float diff = diffTwoAngles(a, lastAngle);
 
-        int threshold = 40;
-        if (linedirection <= 2){
-            threshold = 30;
-//            if (initial_move_count < 5){
-//                threshold = 35;
-//            }
-        }
+        float threshold = 30;
         if (Math.abs(diff) > threshold && lastAnglePoint.distanceTo(lastpoint) > 50){
             float velocity = 100*Math.abs(diff)/(lastpoint.time-lastAnglePoint.time);
             velocity = vfilter.process(velocity);
@@ -411,7 +405,6 @@ public class KBGestureProcessor {
 
     //the main logic: get points and process
     public void processGestureEvent(int x, int y, long eventime){
-        if (notRingmode) return;
         int size = pts.size();
         if (size == 0) {
             pts.add(new Points(x, y, eventime));
@@ -425,68 +418,74 @@ public class KBGestureProcessor {
         }
 
         //too short
-        if (eventime-pts.get(size-1).time < 30) return;
+        if (eventime-pts.get(size-1).time < 20) return;
         pts.add(new Points(x, y, eventime));
         if (pts.size() > maxPoints) pts.remove(0);
 
-        if (!ringmodeEntered && size >= pointsToDetectLine){
-            boolean lineres = false;
-            // we ignore slight movement
-            if (pts.get(pts.size()-1).distanceTo(pts.get(pts.size()-4)) < 15) {
-                return;
-            }
-            if (size == pointsToDetectLine){
-                lineres = detectLine(pointsToDetectLine);
-            } else {
-                lineres = detectLine(pointsToDetectLine*2);
-            }
-            if (!lineres && !lineDetected){
-                notRingmode = true;//the gesture doesn't begin with a line, so we abandon it
-                if (mListener != null) mListener.enteringRingMode(false);
-                Log.e("[Log]", "not entering ring mode" );
-            } else if (lineres){
-                lineDetected = true;
-            } else {
-                for (int i = 0; i < pts.size()-8; ++i){
-                    pts.remove(0);
-                }
+        if (eventime - gestureStartTime > 500) {
+            if (!ringmodeEntered) {
                 ringmodeEntered = true;//no longer line, entering ring mode
-                lastcenter = new org.opencv.core.Point(pts.get(0).x, pts.get(0).y);
-                KBView.updateCenter((int)lastcenter.x, (int)lastcenter.y, 0xFF00FF00);
+//                lastcenter = new org.opencv.core.Point(pts.get(maxPoints -1).x, pts.get(maxPoints -1).y);
+//                KBView.updateCenter((int) lastcenter.x, (int) lastcenter.y, 0xFF00FF00);
                 mListener.kbVibrate();
                 if (mListener != null) mListener.enteringRingMode(true);
-//                Log.e("[Log]", "entering circle mode");
             }
-        }
-        //if ringmode then we process the points
-        else if (ringmodeEntered && pts.size() >= maxPoints){
-            cPoints.add(new org.opencv.core.Point(x, y));
-            //other gestures have 500 ms to accomplish
-            if (eventime - gestureStartTime > 500) {
+            if (pts.size() >= maxPoints){
+                cPoints.add(new org.opencv.core.Point(x, y));
+                //other gestures have 500 ms to accomplish
                 processRingPoints();
             }
         }
+//
+//        if (!ringmodeEntered && size >= pointsToDetectLine){
+//            boolean lineres = false;
+//            // we ignore slight movement
+//            if (pts.get(pts.size()-1).distanceTo(pts.get(pts.size()-4)) < 15) {
+//                return;
+//            }
+//            if (size == pointsToDetectLine){
+//                lineres = detectLine(pointsToDetectLine);
+//            } else {
+//                lineres = detectLine(pointsToDetectLine*2);
+//            }
+//            if (!lineres && !lineDetected){
+//                notRingmode = true;//the gesture doesn't begin with a line, so we abandon it
+//                if (mListener != null) mListener.enteringRingMode(false);
+//                Log.e("[Log]", "not entering ring mode" );
+//            } else if (lineres){
+//                lineDetected = true;
+//            } else {
+//                for (int i = 0; i < pts.size()-8; ++i){
+//                    pts.remove(0);
+//                }
+//                ringmodeEntered = true;//no longer line, entering ring mode
+//                lastcenter = new org.opencv.core.Point(pts.get(0).x, pts.get(0).y);
+//                KBView.updateCenter((int)lastcenter.x, (int)lastcenter.y, 0xFF00FF00);
+//                mListener.kbVibrate();
+//                if (mListener != null) mListener.enteringRingMode(true);
+////                Log.e("[Log]", "entering circle mode");
+//            }
+//        }
+//        //if ringmode then we process the points
+//        else if (ringmodeEntered && pts.size() >= maxPoints){
+//            cPoints.add(new org.opencv.core.Point(x, y));
+//            //other gestures have 500 ms to accomplish
+//            if (eventime - gestureStartTime > 500) {
+//                processRingPoints();
+//            }
+//        }
     }
 
     private void moveCursor(float diff, float velocity){
         if (mListener != null){
 //            Log.e("[Log]", "Velo " + velocity );
             int movedirection = 0;
-            if (!ringmodeEntered){
-                mListener.moveCursor(linedirection, false);
-            }
-            if (linedirection == 1 || linedirection == 2){
-                if (curDirection == 1){ // clockwise: right
+
+            if (curDirection == 1 ){
+                // clockwise: right
                     movedirection = 2;
-                } else {
-                    movedirection = 1;
-                }
             } else {
-                if (curDirection == 1){ // clockwise: down
-                    movedirection = 4;
-                } else {
-                    movedirection = 3;
-                }
+                    movedirection = 1;
             }
             //CD-gain
             int movetime = 1;
@@ -570,8 +569,8 @@ public class KBGestureProcessor {
                     xs += ((int)p.x+", ");
                     ys += ((int)p.y+", ");
                 }
-                Log.e("[Points]", "x: "+xs);
-                Log.e("[Points]", "y: "+ys);
+//                Log.e("[Points]", "x: "+xs);
+//                Log.e("[Points]", "y: "+ys);
             }
             mpoints = resample(mpoints, NUMPOINTS);
             scale(mpoints);

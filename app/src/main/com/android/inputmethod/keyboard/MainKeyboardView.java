@@ -789,7 +789,7 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
         if (editmode) {
             canvas.drawARGB(150, 150, 150, 150);
         }
-//        canvas.drawCircle(centerx, centery, 10, paint);
+        canvas.drawCircle(centerx, centery, 10, paint);
     }
 
     /**
