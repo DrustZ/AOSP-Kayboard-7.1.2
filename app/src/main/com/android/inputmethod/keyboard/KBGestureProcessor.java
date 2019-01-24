@@ -425,10 +425,8 @@ public class KBGestureProcessor {
         if (eventime - gestureStartTime > 500) {
             if (!ringmodeEntered) {
                 ringmodeEntered = true;//no longer line, entering ring mode
-//                lastcenter = new org.opencv.core.Point(pts.get(maxPoints -1).x, pts.get(maxPoints -1).y);
-//                KBView.updateCenter((int) lastcenter.x, (int) lastcenter.y, 0xFF00FF00);
                 mListener.kbVibrate();
-                if (mListener != null) mListener.enteringRingMode(true);
+                if (mListener != null) { mListener.enteringRingMode(true); mListener.logGesture("ring_gesture"); }
             }
             if (pts.size() >= maxPoints){
                 cPoints.add(new org.opencv.core.Point(x, y));
@@ -436,44 +434,6 @@ public class KBGestureProcessor {
                 processRingPoints();
             }
         }
-//
-//        if (!ringmodeEntered && size >= pointsToDetectLine){
-//            boolean lineres = false;
-//            // we ignore slight movement
-//            if (pts.get(pts.size()-1).distanceTo(pts.get(pts.size()-4)) < 15) {
-//                return;
-//            }
-//            if (size == pointsToDetectLine){
-//                lineres = detectLine(pointsToDetectLine);
-//            } else {
-//                lineres = detectLine(pointsToDetectLine*2);
-//            }
-//            if (!lineres && !lineDetected){
-//                notRingmode = true;//the gesture doesn't begin with a line, so we abandon it
-//                if (mListener != null) mListener.enteringRingMode(false);
-//                Log.e("[Log]", "not entering ring mode" );
-//            } else if (lineres){
-//                lineDetected = true;
-//            } else {
-//                for (int i = 0; i < pts.size()-8; ++i){
-//                    pts.remove(0);
-//                }
-//                ringmodeEntered = true;//no longer line, entering ring mode
-//                lastcenter = new org.opencv.core.Point(pts.get(0).x, pts.get(0).y);
-//                KBView.updateCenter((int)lastcenter.x, (int)lastcenter.y, 0xFF00FF00);
-//                mListener.kbVibrate();
-//                if (mListener != null) mListener.enteringRingMode(true);
-////                Log.e("[Log]", "entering circle mode");
-//            }
-//        }
-//        //if ringmode then we process the points
-//        else if (ringmodeEntered && pts.size() >= maxPoints){
-//            cPoints.add(new org.opencv.core.Point(x, y));
-//            //other gestures have 500 ms to accomplish
-//            if (eventime - gestureStartTime > 500) {
-//                processRingPoints();
-//            }
-//        }
     }
 
     private void moveCursor(float diff, float velocity){
@@ -585,8 +545,8 @@ public class KBGestureProcessor {
                     xs += ((int)p.x+", ");
                     ys += ((int)p.y+", ");
                 }
-//                Log.e("[Points]", "x: "+xs);
-//                Log.e("[Points]", "y: "+ys);
+                Log.e("[Points]", "x: "+xs);
+                Log.e("[Points]", "y: "+ys);
             }
             mpoints = resample(mpoints, NUMPOINTS);
             scale(mpoints);
@@ -818,13 +778,13 @@ public class KBGestureProcessor {
             }
             mGestures.add(new PointCloud("paste", points));
             //user-defined
-//            points = new ArrayList<Points>();
-//            x = new int[]{};
-//            y = new int[]{};
-//            for (int i = 0; i < x.length; ++i){
-//                points.add(new Points(x[i], y[i], 0));
-//            }
-//            mGestures.add(new PointCloud("paste", points));
+            points = new ArrayList<Points>();
+            x = new int[]{1310, 1255, 1232, 1203, 1159, 1145, 1125, 1099, 1091, 1078, 1058, 1053, 1044, 1031, 1027, 1019, 1004, 1000, 990, 974, 970, 955, 933, 929, 913, 894, 891, 883, 875, 873, 867};
+            y = new int[]{319, 369, 390, 418, 462, 475, 498, 526, 532, 544, 558, 560, 567, 574, 575, 576, 572, 571, 564, 550, 547, 532, 508, 503, 479, 436, 430, 396, 355, 347, 331};
+            for (int i = 0; i < x.length; ++i){
+                points.add(new Points(x[i], y[i], 0));
+            }
+            mGestures.add(new PointCloud("paste", points));
 
 
             //cut gestures

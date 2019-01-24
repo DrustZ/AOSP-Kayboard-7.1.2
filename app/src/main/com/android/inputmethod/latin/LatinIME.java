@@ -1528,6 +1528,15 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         sendBroadcast(intent);
     }
 
+    @Override
+    public void logGesture(String gesture) {
+        Intent intent = new Intent();
+        intent.setAction("com.android.inputmethod.GestureEdit");
+        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        intent.putExtra("gesture", gesture);
+        sendBroadcast(intent);
+    }
+
     boolean ringMode = false;
     boolean editMode = false;
 
@@ -1552,6 +1561,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     public void copyText() {
         if (!editMode) return;
         if (mInputLogic.mConnection.hasSelection()) {
+            logGesture("copy_gesture");
             mInputLogic.mConnection.mIC.performContextMenuAction(android.R.id.copy);
             Toast.makeText(getApplicationContext(), "Text Copied",
                     Toast.LENGTH_SHORT).show();
@@ -1561,6 +1571,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     @Override
     public void pasteText() {
         if (!editMode) return;
+        logGesture("paste_gesture");
         mInputLogic.mConnection.mIC.performContextMenuAction(android.R.id.paste);
     }
 
@@ -1568,13 +1579,14 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     public void cutText() {
         if (!editMode) return;
         if (mInputLogic.mConnection.hasSelection())
+            logGesture("cut_gesture");
             mInputLogic.mConnection.mIC.performContextMenuAction(android.R.id.cut);
     }
 
     @Override
     public void undoEdit() {
-        Log.e(TAG, "undo");
         if (!editMode) return;
+        logGesture("undo_gesture");
         mInputLogic.mConnection.mIC.performContextMenuAction(android.R.id.undo);
     }
 
@@ -1586,8 +1598,8 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         if (direction == 3) keycode = KeyEvent.KEYCODE_DPAD_UP;
         if (direction == 4) keycode = KeyEvent.KEYCODE_DPAD_DOWN;
         int keyevent = 0;
-        if (editMode)   keyevent |= KeyEvent.META_SHIFT_LEFT_ON;
-        if (wordlevel)  keyevent |= KeyEvent.META_CTRL_LEFT_ON;
+        if (editMode)   {keyevent |= KeyEvent.META_SHIFT_LEFT_ON;}
+        if (wordlevel)  {keyevent |= KeyEvent.META_CTRL_LEFT_ON; logGesture("wordmove_gesture");}
         mInputLogic.sendDownUpKeyEvents(keycode, keyevent);
     }
 

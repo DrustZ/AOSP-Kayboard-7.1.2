@@ -108,6 +108,8 @@ public interface KeyboardActionListener {
 
     public void onSwitchRightSwiped();
 
+    public void logGesture(String gesture);
+
     public void enteringRingMode(boolean enter);
 
     public void moveCursor(int direction, boolean wordlevel);
@@ -163,6 +165,8 @@ public interface KeyboardActionListener {
         public void enteringRingMode(boolean enter) {}
         @Override
         public void moveCursor(int direction, boolean wordlevel) {}
+        @Override
+        public void logGesture(String gesture) {}
         @Override
         public void kbVibrate() {}
         @Override

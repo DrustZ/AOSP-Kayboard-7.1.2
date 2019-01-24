@@ -644,7 +644,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
                 //put a shadow on kb view
                 sGestureProcessor.KBView.setEditmode(true);
                 sListener.enableEditing();
-            } else if (x > width - 20 && !motionEdgeRight && !motionEdge){
+            } else if (x > width - 30 && !motionEdgeRight && !motionEdge){
                clickCount = 0;
                motionEdgeRight = true;
                //put a shadow on kb view
