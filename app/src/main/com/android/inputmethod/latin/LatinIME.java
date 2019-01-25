@@ -1543,6 +1543,11 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     @Override
     public void enteringRingMode(boolean enter) {
         ringMode = enter;
+        if (editMode) {
+            logGesture("ring_gesture_editing");
+        } else {
+            logGesture("ring_gesture");
+        }
     }
 
     @Override
@@ -1599,7 +1604,14 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         if (direction == 4) keycode = KeyEvent.KEYCODE_DPAD_DOWN;
         int keyevent = 0;
         if (editMode)   {keyevent |= KeyEvent.META_SHIFT_LEFT_ON;}
-        if (wordlevel)  {keyevent |= KeyEvent.META_CTRL_LEFT_ON; logGesture("wordmove_gesture");}
+        if (wordlevel)  {
+            keyevent |= KeyEvent.META_CTRL_LEFT_ON;
+            if (editMode){
+                logGesture("wordmove_gesture_editing");
+            } else {
+                logGesture("wordmove_gesture");
+            }
+        }
         mInputLogic.sendDownUpKeyEvents(keycode, keyevent);
     }
 

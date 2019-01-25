@@ -426,7 +426,7 @@ public class KBGestureProcessor {
             if (!ringmodeEntered) {
                 ringmodeEntered = true;//no longer line, entering ring mode
                 mListener.kbVibrate();
-                if (mListener != null) { mListener.enteringRingMode(true); mListener.logGesture("ring_gesture"); }
+                if (mListener != null) { mListener.enteringRingMode(true); }
             }
             if (pts.size() >= maxPoints){
                 cPoints.add(new org.opencv.core.Point(x, y));
