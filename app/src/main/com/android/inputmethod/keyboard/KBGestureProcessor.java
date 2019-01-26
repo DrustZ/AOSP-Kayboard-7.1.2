@@ -348,6 +348,7 @@ public class KBGestureProcessor {
             initial_move_count += 1;
             if (initial_move_count < 5) {
                 velocity = 0;
+                if (initial_move_count == 1 && mListener!= null) {mListener.logGesture("ring_gesture");}
             }
             if ((diff < 0 && curDirection == 1) || (diff > 0 && curDirection == -1)){
                 if (Math.abs(diff) < 20+threshold){
@@ -438,7 +439,7 @@ public class KBGestureProcessor {
 
     private void moveCursor(float diff, float velocity){
         if (mListener != null){
-//            Log.e("[Log]", "Velo " + velocity );
+
             int movedirection = 0;
 
             if (curDirection == 1 ){
@@ -452,12 +453,6 @@ public class KBGestureProcessor {
             if (curDirection <= 2 && velocity > 35){
                 movetime = (int)Math.ceil(5*(1-Math.exp(0.04*(35-velocity))));
             }
-            // word-level
-//            if (curDirection <= 2 && velocity > 20){
-//                mListener.moveCursor(movedirection, true);
-//            } else {
-//                mListener.moveCursor(movedirection, false);
-//            }
             if (velocity < 25){
                 mListener.kbVibrate();
             }
@@ -842,8 +837,8 @@ public class KBGestureProcessor {
 
             //undo gestures
             points = new ArrayList<Points>();
-            x = new int[]{551, 585, 602, 619, 636, 651, 673, 679, 693, 701, 714, 719, 728, 733, 740, 744, 749, 752, 755, 757, 759, 761, 763, 764, 765, 765, 765, 765, 765, 764, 764, 763, 761, 755, 753, 739, 726, 721, 712, 703, 684, 667, 658, 652, 640, 633, 629, 623, 619, 614, 610, 601, 597, 593, 586, 583, 580, 575, 573, 571, 569, 568, 569, 571, 571, 575, 588, 594, 697, 747, 755, 791};
-            y = new int[]{147, 133, 126, 120, 113, 108, 100, 98, 93, 90, 85, 84, 81, 79, 76, 75, 73, 73, 71, 71, 70, 70, 69, 69, 69, 69, 69, 69, 71, 73, 75, 77, 82, 92, 97, 119, 135, 144, 156, 167, 190, 211, 222, 231, 246, 253, 259, 265, 270, 275, 280, 289, 292, 297, 305, 308, 313, 320, 323, 327, 333, 335, 338, 342, 343, 346, 350, 352, 363, 368, 368, 372};
+            x = new int[]{941, 969, 991, 994, 1014, 1025, 1027, 1035, 1040, 1041, 1044, 1046, 1047, 1048, 1046, 1046, 1043, 1039, 1039, 1035, 1031, 1030, 1022, 1012, 1008, 988, 970, 962, 937, 920, 912, 893, 884, 879, 869, 864, 861, 854, 851, 849, 846, 844, 843, 841, 840, 840, 840, 841, 842, 848, 853, 859, 875, 885, 900, 931, 948, 972, 1016, 1035, 1064, 1106, 1107, 1110};
+            y = new int[]{287, 292, 298, 299, 305, 308, 309, 311, 311, 312, 313, 313, 314, 316, 318, 319, 322, 324, 325, 328, 330, 331, 336, 340, 343, 354, 364, 369, 387, 398, 405, 419, 426, 431, 440, 446, 450, 458, 462, 466, 472, 474, 477, 481, 483, 485, 489, 491, 493, 496, 496, 497, 497, 497, 498, 499, 499, 500, 502, 502, 504, 505, 505, 505};
             for (int i = 0; i < x.length; ++i){
                 points.add(new Points(x[i], y[i], 0));
             }

@@ -1530,6 +1530,9 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
     @Override
     public void logGesture(String gesture) {
+        if (gesture.equals("ring_gesture") && editMode){
+            gesture = "ring_gesture_editing";
+        }
         Intent intent = new Intent();
         intent.setAction("com.android.inputmethod.GestureEdit");
         intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
@@ -1543,11 +1546,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     @Override
     public void enteringRingMode(boolean enter) {
         ringMode = enter;
-        if (editMode) {
-            logGesture("ring_gesture_editing");
-        } else {
-            logGesture("ring_gesture");
-        }
     }
 
     @Override
