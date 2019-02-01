@@ -336,8 +336,8 @@ public class KBGestureProcessor {
         if (lastAngle == Infinite){
 //            lastAngle = getAngle(pts.get(0).x, pts.get(0).y, (float)lastcenter.x, (float)lastcenter.y);
 //            lastAngle_time = pts.get(0).time;
-            lastAnglePoint = pts.get(0);
-            lastAngle = getAngle(pts.get(0).x, pts.get(0).y, (float)lastcenter.x, (float)lastcenter.y);
+            lastAnglePoint = pts.get(maxPoints/2);
+            lastAngle = getAngle(pts.get(maxPoints/2).x, pts.get(maxPoints/2).y, (float)lastcenter.x, (float)lastcenter.y);
         }
         float diff = diffTwoAngles(a, lastAngle);
 
