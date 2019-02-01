@@ -128,6 +128,8 @@ public interface KeyboardActionListener {
 
     public void undoEdit();
 
+    public boolean isInEditingMode();
+
     public static final KeyboardActionListener EMPTY_LISTENER = new Adapter();
 
     public static class Adapter implements KeyboardActionListener {
@@ -181,5 +183,7 @@ public interface KeyboardActionListener {
         public void cutText() {}
         @Override
         public void undoEdit() {}
+        @Override
+        public boolean isInEditingMode() {return false;}
     }
 }

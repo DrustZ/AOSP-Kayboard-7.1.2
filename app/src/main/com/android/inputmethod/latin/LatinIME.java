@@ -1555,6 +1555,11 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     }
 
     @Override
+    public boolean isInEditingMode() {
+        return editMode;
+    }
+
+    @Override
     public void disableEditing() {
         editMode = false;
         mInputLogic.sendDownUpKeyEvent(KeyEvent.KEYCODE_SHIFT_LEFT);

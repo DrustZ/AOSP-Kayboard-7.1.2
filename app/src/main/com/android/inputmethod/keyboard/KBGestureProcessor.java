@@ -336,14 +336,18 @@ public class KBGestureProcessor {
         if (lastAngle == Infinite){
 //            lastAngle = getAngle(pts.get(0).x, pts.get(0).y, (float)lastcenter.x, (float)lastcenter.y);
 //            lastAngle_time = pts.get(0).time;
-            lastAnglePoint = lastpoint;
-            lastAngle = a;
+            lastAnglePoint = pts.get(0);
+            lastAngle = getAngle(pts.get(0).x, pts.get(0).y, (float)lastcenter.x, (float)lastcenter.y);
         }
         float diff = diffTwoAngles(a, lastAngle);
 
-        float threshold = 30;
-        if (Math.abs(diff) > threshold && lastAnglePoint.distanceTo(lastpoint) > 50){
-            float velocity = 100*Math.abs(diff)/(lastpoint.time-lastAnglePoint.time);
+        float threshold = 55;
+        float dist = lastAnglePoint.distanceTo(lastpoint);
+        if (Math.abs(diff) > threshold && dist > 70){
+//            float velocity = 100*Math.abs(diff)/(lastpoint.time-lastAnglePoint.time);
+            float velocity = dist/(lastpoint.time-lastAnglePoint.time);
+//            Log.e("[Log]", "processRingPoints: velocity : "+velocity );
+//            Log.e("[Log]", "dist: "+dist );
             velocity = vfilter.process(velocity);
             initial_move_count += 1;
             if (initial_move_count < 5) {
@@ -354,7 +358,7 @@ public class KBGestureProcessor {
                 if (Math.abs(diff) < 20+threshold){
                     change_count += 1;
 //                Log.e("[Diff]", "move diff"+diff+ " angle now "+a);
-                    if (change_count > 1){
+                    if (change_count >= 1){
                         //lets change direction
                         change_count = 0;
                         curDirection = -curDirection;
@@ -376,10 +380,10 @@ public class KBGestureProcessor {
             lastAnglePoint = lastpoint;
         }
 
-        if (ellipseLocated <= 1 && Math.abs(accumAngle) > 180 && cPoints.size() > 5){
-            if (locateEllipse())
-                ellipseLocated = 2;
-        }
+//        if (ellipseLocated <= 1 && Math.abs(accumAngle) > 180 && cPoints.size() > 5){
+//            if (locateEllipse())
+//                ellipseLocated = 2;
+//        }
 
         if (Math.abs(accumAngle) >= 270){
             lastcenter = null;
@@ -423,10 +427,14 @@ public class KBGestureProcessor {
         pts.add(new Points(x, y, eventime));
         if (pts.size() > maxPoints) pts.remove(0);
 
-        if (eventime - gestureStartTime > 500) {
+        int threshold = 200;
+        if (mListener != null && mListener.isInEditingMode()){
+            threshold = 500;
+        }
+        if (eventime - gestureStartTime > threshold) {
             if (!ringmodeEntered) {
                 ringmodeEntered = true;//no longer line, entering ring mode
-                mListener.kbVibrate();
+//                mListener.kbVibrate();
                 if (mListener != null) { mListener.enteringRingMode(true); }
             }
             if (pts.size() >= maxPoints){
@@ -450,8 +458,9 @@ public class KBGestureProcessor {
             }
             //CD-gain
             int movetime = 1;
-            if (curDirection <= 2 && velocity > 35){
-                movetime = (int)Math.ceil(5*(1-Math.exp(0.04*(35-velocity))));
+            if (curDirection <= 2 && velocity > 1.7){
+//                movetime = (int)Math.ceil(5*(1-Math.exp(0.04*(35-velocity))));
+                movetime = 2;
             }
             if (velocity < 25){
                 mListener.kbVibrate();
