@@ -155,11 +155,11 @@ public final class DrawingPreviewPlacerView extends RelativeLayout {
                 removeIndicatorView();
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (rawY > CoordinateUtils.y(mKeyboardViewOrigin) + 50){
+                if (rawY > CoordinateUtils.y(mKeyboardViewOrigin) + 120){
                     removeIndicatorView();
                 } else {
                     mIndicatorView.setX(rawX-mIndicatorView.getWidth()/2-10);
-                    mIndicatorView.setY(rawY-mIndicatorView.getHeight()-150);
+                    mIndicatorView.setY(rawY-mIndicatorView.getHeight()-180);
                     mIndicatorView.requestLayout();
                 }
                 break;
