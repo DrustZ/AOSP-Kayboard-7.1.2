@@ -26,8 +26,7 @@ public final class GestureEnabler {
     private boolean mGestureHandlingEnabledByUser;
 
     private void updateGestureHandlingMode() {
-        mShouldHandleGesture = mMainDictionaryAvailable
-                && mGestureHandlingEnabledByInputField
+        mShouldHandleGesture =  mGestureHandlingEnabledByInputField
                 && mGestureHandlingEnabledByUser
                 && !AccessibilityUtils.getInstance().isTouchExplorationEnabled();
     }
